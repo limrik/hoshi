@@ -130,3 +130,8 @@ async def upload(text: str = Form(...), file: UploadFile = File(...), token_id: 
     return {
         "message": "Upload successful",
     }
+
+
+@app.get("/posts")
+async def get_posts():
+    return posts
