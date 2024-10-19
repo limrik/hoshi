@@ -102,7 +102,10 @@ export default function Home() {
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
             {posts.map((post, id) => {
               const updatedFpath = post.fpath.replace('../db/media', '/media');
-              const userAvatar = `/media/${Users[post.user_handle]}`;
+              const user = Users.find(
+                (user) => user.hoshiHandle === post.user_handle
+              );
+              const userAvatar = `/media/${user.imagePath}`;
 
               return (
                 <div key={id} className='p-8'>

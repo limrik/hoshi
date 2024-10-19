@@ -107,7 +107,7 @@ export default function ContentMatchPage() {
         'iVBORw0KGgoAAAANSUhEUgAAAs0AAAOYCAIAAAChGVkmAAEAAE…6yafJYw36WG9bBKwIAPwv2snLcd0N/ZkAAAAASUVORK5CYII=',
       parent_img:
         'iVBORw0KGgoAAAANSUhEUgAAA/kAAAdZCAYAAACgFtrxAAEAAE…8Y2Njg1dffbWbhroL5/8PANTN0wzDeskAAAAASUVORK5CYII=',
-      token_id: 7,
+      token_id: 5,
     };
 
     // return {
@@ -152,10 +152,16 @@ export default function ContentMatchPage() {
         // get back parent and similarity score
         setEditedImage(res.edited_media);
         setParentImage(res.parent_img);
-        console.log(Posts[res.token_id].user_handle);
 
-        setUserHandle(Posts[res.token_id].user_handle);
-        setUserIcon(`/media/${Users[Posts[res.token_id].user_handle]}`);
+        const post = Posts.find((post) => post.token_id === res.token_id);
+        console.log(post);
+        const user = Users.find(
+          (user) => user.hoshiHandle === post.user_handle
+        );
+        // Now you have the correct user based on the post's user_handle
+        setUserHandle(user.hoshiHandle);
+
+        setUserIcon(`/media/${user.imagePath}`);
         setUploadData((prevData) => ({
           ...prevData,
           parentImage: res.parent_img,
