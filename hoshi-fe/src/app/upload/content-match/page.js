@@ -19,8 +19,8 @@ import {
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { sepolia } from 'viem/chains';
 import { readContract, writeContract } from 'viem/actions';
-import Posts from '../../../../../db/posts.json';
-import Users from '../../../../../db/users.json';
+import Posts from '../../../../public/db/posts.json';
+import Users from '../../../../public/db/users.json';
 
 export default function ContentMatchPage() {
   const router = useRouter();
@@ -107,7 +107,7 @@ export default function ContentMatchPage() {
         'iVBORw0KGgoAAAANSUhEUgAAAs0AAAOYCAIAAAChGVkmAAEAAE…6yafJYw36WG9bBKwIAPwv2snLcd0N/ZkAAAAASUVORK5CYII=',
       parent_img:
         'iVBORw0KGgoAAAANSUhEUgAAA/kAAAdZCAYAAACgFtrxAAEAAE…8Y2Njg1dffbWbhroL5/8PANTN0wzDeskAAAAASUVORK5CYII=',
-      token_id: 7,
+      token_id: 5,
     };
 
     // return {
@@ -152,10 +152,16 @@ export default function ContentMatchPage() {
         // get back parent and similarity score
         setEditedImage(res.edited_media);
         setParentImage(res.parent_img);
-        console.log(Posts[res.token_id].user_handle);
 
-        setUserHandle(Posts[res.token_id].user_handle);
-        setUserIcon(`/media/${Users[Posts[res.token_id].user_handle]}`);
+        const post = Posts.find((post) => post.token_id === res.token_id);
+        console.log(post);
+        const user = Users.find(
+          (user) => user.hoshiHandle === post.user_handle
+        );
+        // Now you have the correct user based on the post's user_handle
+        setUserHandle(user.hoshiHandle);
+
+        setUserIcon(`/media/${user.imagePath}`);
         setUploadData((prevData) => ({
           ...prevData,
           parentImage: res.parent_img,
@@ -247,32 +253,89 @@ export default function ContentMatchPage() {
     }
   }
 
+  // upload: text, file, token_id, user_id
+
+  async function uploadAPI(text, file, token_id, user_id) {
+    try {
+      const response = await fetch(
+        'https://7bdb-2607-fea8-75e-c700-84a1-5c17-c718-3d0.ngrok-free.app/search',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error Response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  async function getPosts() {
+    console.log('POSTS');
+    try {
+      const response = await fetch(
+        'https://e3c4-104-244-25-79.ngrok-free.app/posts/',
+        {
+          method: 'GET',
+          headers: {
+            'ngrok-skip-browser-warning': '69420',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error Response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+      return error;
+    }
+  }
+
   const handlePost = async () => {
-    const parentTokenID = 1;
-    const walletClient = await primaryWallet.getWalletClient();
-    // upload upload.file to ipfs via pinata
-    const IPFSTokenURI = await addDataToIPFS();
+    const posts = await getPosts();
+    console.log(posts);
+    // const parentTokenID = 1;
+    // const walletClient = await primaryWallet.getWalletClient();
+    // // upload upload.file to ipfs via pinata
+    // const IPFSTokenURI = await addDataToIPFS();
 
-    // mint NFT
-    // 1. get parentTokenIds
-    const parents = await getParentTokenIds(walletClient, parentTokenID);
-    parents.unshift(parentTokenID);
+    // // mint NFT
+    // // 1. get parentTokenIds
+    // const parents = await getParentTokenIds(walletClient, parentTokenID);
+    // parents.unshift(parentTokenID);
 
-    // 2. get similarityScoresInput
-    const similarityScores = await getSimilarityScores(
-      walletClient,
-      parentTokenID
-    );
-    similarityScores.unshift(70);
+    // // 2. get similarityScoresInput
+    // const similarityScores = await getSimilarityScores(
+    //   walletClient,
+    //   parentTokenID
+    // );
+    // similarityScores.unshift(70);
 
-    const tokenId = await mintNFT(
-      walletClient,
-      parents,
-      similarityScores,
-      IPFSTokenURI
-    );
-    console.log(tokenId);
-    // also store in local storage
+    // const tokenId = await mintNFT(
+    //   walletClient,
+    //   parents,
+    //   similarityScores,
+    //   IPFSTokenURI
+    // );
+    // console.log(tokenId);
+
+    await uploadAPI(uploadData.content, uploadData.file, tokenId, userHandle);
 
     // router.push('/');
   };
