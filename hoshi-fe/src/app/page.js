@@ -33,9 +33,9 @@ export default function Home() {
           ? {
               ...post,
               liked: !post.liked,
-              likesCount: post.liked
-                ? post.likesCount - 1
-                : post.likesCount + 1,
+              likes_count: post.liked
+                ? post.likes_count - 1
+                : post.likes_count + 1,
             }
           : post
       )
@@ -82,12 +82,12 @@ export default function Home() {
             </div>
           </header>
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
-            {posts.map((post) => {
+            {posts.map((post, id) => {
               const updatedFpath = post.fpath.replace('../db/media', '/media');
               const userAvatar = `/media/${Users[post.user_handle]}`;
 
               return (
-                <div key={post.token_id} className='p-8'>
+                <div key={id} className='p-8'>
                   <div className='rounded-t-lg bg-gray-800 text-white p-4 flex items-center gap-2'>
                     <Image
                       src={userAvatar}
@@ -145,60 +145,6 @@ export default function Home() {
                 </div>
               );
             })}
-            {posts.map((post) => (
-              <div key={post.token_id} className='p-8'>
-                <div className='rounded-t-lg bg-gray-800 text-white p-4 flex items-center gap-2'>
-                  <Image
-                    src={hakiIcon}
-                    alt='User avatar'
-                    width={40}
-                    height={40}
-                    className='rounded-full'
-                    unoptimized
-                  />
-                  <div>haki</div>
-                  <button
-                    onClick={() => openDrawer(post.id)}
-                    className='ml-auto flex border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'
-                  >
-                    <Ellipsis size={20} color='#fff4d1' />
-                  </button>
-                </div>
-                <div className='relative overflow-hidden'>
-                  <div className='aspect-w-16 aspect-h-9'>
-                    <Image
-                      src={hakiIcon}
-                      alt='Uploaded preview'
-                      width={800}
-                      height={450}
-                      className='w-full h-full object-cover'
-                    />
-                  </div>
-                </div>
-                <div className='flex items-center justify-between bg-gray-800 p-4 rounded-b-lg'>
-                  <p>{post.content}</p>
-                  <div className='relative inline-block'>
-                    <motion.div
-                      whileTap={{ scale: 0.8 }}
-                      onClick={() => handleLikeClick(post.id)}
-                      style={{ cursor: 'pointer' }}
-                      aria-pressed={post.liked}
-                      aria-label={post.liked ? 'Unlike' : 'Like'}
-                      className='flex items-center bg-gray-800 border border-gray-400 text-white rounded-full py-1 px-2 shadow-lg'
-                    >
-                      {post.liked ? (
-                        <FaStar size={16} className='mr-1' color='#fff4d1' />
-                      ) : (
-                        <FaRegStar size={16} className='mr-1' color='#fff4d1' />
-                      )}
-                      <span className='text-sm font-bold'>
-                        {post.likesCount}
-                      </span>
-                    </motion.div>
-                  </div>
-                </div>
-              </div>
-            ))}
 
             {/* Drawer */}
             <Drawer isOpen={selectedPost !== null} onClose={closeDrawer}>
