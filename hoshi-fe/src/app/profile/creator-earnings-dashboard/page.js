@@ -24,6 +24,8 @@ export default function CreatorEarningsDashboard() {
   const [showConfetti, setShowConfetti] = useState(false);
   const { primaryWallet } = useDynamicContext();
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [walletClient, setWalletClient] = useState();
+  const [address, setAddress] = useState();
 
   useEffect(() => {
     if (showConfetti) {
@@ -41,6 +43,27 @@ export default function CreatorEarningsDashboard() {
   };
 
   const handleUnwrap = () => {
+    const unwrapHoshitokens = async () => {
+      try {
+        const tx = await writeContract(walletClient, {
+          address: HOSHITOKEN_CONTRACT_ADDRESS,
+          abi: HOSHITOKEN_ABI,
+          functionName: 'unwrapTokens',
+          args: [100000 * 10 ** 18],
+          chain: sepolia,
+        });
+
+        console.log('Subscription transaction sent:', tx);
+
+        const receipt = await tx.wait();
+        console.log('Transaction confirmed:', receipt);
+
+        alert('Subscription successful!');
+      } catch (error) {
+        console.error('Error interacting with the contract:', error);
+      }
+    };
+    unwrapHoshitokens();
     setIsUnwrapped(true);
     setEarningsValue(0);
     fireConfetti();
@@ -52,6 +75,9 @@ export default function CreatorEarningsDashboard() {
       try {
         const walletClient = await primaryWallet.getWalletClient();
         const [address] = await walletClient.getAddresses();
+
+        setWalletClient(walletClient);
+        setAddress(address);
 
         const hoshitokens = await readContract(walletClient, {
           address: HOSHITOKEN_CONTRACT_ADDRESS,
@@ -82,11 +108,6 @@ export default function CreatorEarningsDashboard() {
 
   const handleSubscribe = async () => {
     try {
-      const walletClient = await primaryWallet.getWalletClient();
-      const [address] = await walletClient.getAddresses();
-
-      console.log('Connected wallet address:', address);
-
       const subscriptionFee = await readContract(walletClient, {
         address: HOSHITOKEN_CONTRACT_ADDRESS,
         abi: HOSHITOKEN_ABI,
