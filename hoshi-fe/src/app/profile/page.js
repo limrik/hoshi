@@ -5,6 +5,7 @@ import hakiIcon from '../media/user-icon/haki.png';
 import { DollarSign, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDynamicContext, DynamicWidget } from '@dynamic-labs/sdk-react-core';
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('Posts');
@@ -13,6 +14,8 @@ export default function ProfilePage() {
   function handleClick() {
     router.push('/profile/creator-earnings-dashboard');
   }
+  const { user } = useDynamicContext();
+  console.log(user);
   useEffect(() => {
     if (!user) {
       router.push('/');
@@ -20,9 +23,9 @@ export default function ProfilePage() {
   }, [user, router]);
 
   return (
-    <div className='fixed inset-x-0 top-0 bottom-16 z-50 flex flex-col bg-[#1C1C1E] text-white overflow-hidden'>
-      <header className='flex justify-between items-center p-4 mb-16'>
-        <div className='flex flex-col gap-4'>
+    <div className='fixed top-0 bottom-16 z-50 flex flex-col bg-[#1C1C1E] text-white w-full'>
+      <header className='flex justify-between items-center p-4 mb-16 w-full'>
+        <div className='flex flex-col gap-4 w-full'>
           <div className='flex items-center gap-2 justify-between'>
             <div className='flex items-center gap-2'>
               <Image
@@ -34,8 +37,12 @@ export default function ProfilePage() {
                 unoptimized
               />
               <div className='flex flex-col'>
-                <p className='text-lg font-semibold leading-tight'>haki</p>
-                <p className='text-sm text-gray-400 leading-tight'>@haki</p>
+                <p className='text-lg font-semibold leading-tight'>
+                  {user.metadata.Name}
+                </p>
+                <p className='text-sm text-gray-400 leading-tight'>
+                  {user.metadata.Hoshihandle}
+                </p>
               </div>
             </div>
 
@@ -44,8 +51,7 @@ export default function ProfilePage() {
             </button>
           </div>
           <p className='text-sm text-gray-400 leading-tight'>
-            Tech Enthusiast & Content Creator. Exploring the latest in
-            technology, gadgets, and digital culture.
+            {user.metadata.Bio}
           </p>
           <div className='flex justify-center'>
             <button
@@ -69,6 +75,7 @@ export default function ProfilePage() {
               410k <span className='text-gray-400 '>followers</span>
             </p>
           </div>
+          <DynamicWidget />
         </div>
       </header>
       <div className='flex border-b border-gray-700'>
