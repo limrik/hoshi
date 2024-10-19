@@ -20,12 +20,13 @@ def cosine_sim(str1, str2):
 class TextDB:
     def __init__(self, table_name: str):
         self.registry = EmbeddingFunctionRegistry().get_instance()
-        self.cohere = self.registry.get("cohere").create(name="embed-english-v3.0")
+        self.openai = self.registry.get("openai").create(name="text-embedding-3-small")
 
         class Schema(LanceModel):
-            text: str = self.cohere.SourceField()
-            vector: Vector(self.cohere.ndims()) = self.cohere.VectorField()
+            text: str = self.openai.SourceField()
+            vector: Vector(self.openai.ndims()) = self.openai.VectorField()
             source: str
+            token_id: str
 
         self.db = lancedb.connect("./.lancedb")
         self.table = self.db.create_table(table_name, schema=Schema, exist_ok=True)
@@ -34,13 +35,13 @@ class TextDB:
         # self.reranker = LinearCombinationReranker(weight=0.2)  # Full text search is 0.8
         self.reranker = LinearCombinationReranker(weight=0.5)
 
-    def add_text(self, text: str, source: str):
+    def add_text(self, text: str, source: str, token_id: str):
         text = self.splitter.create_documents([text])
         splits = self.splitter.split_documents(text)
         data = []
         for split in splits:
             chunk = split.page_content
-            data.append({"text": chunk, "source": source})
+            data.append({"text": chunk, "source": source, "token_id": token_id})
         self.table.add(data)
 
     def search(self, text_query: str, k: int = 1):
@@ -50,5 +51,5 @@ class TextDB:
             source = item["source"]
             text = item["text"]
             score = cosine_sim(text_query, text)
-            out.append({"source": source, "score": score})
+            out.append({"source": source, "score": score, "token_id": item["token_id"], "content": text})
         return out
