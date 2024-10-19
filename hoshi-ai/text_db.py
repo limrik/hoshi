@@ -20,11 +20,11 @@ def cosine_sim(str1, str2):
 class TextDB:
     def __init__(self, table_name: str):
         self.registry = EmbeddingFunctionRegistry().get_instance()
-        self.cohere = self.registry.get("cohere").create(name="embed-english-v3.0")
+        self.openai = self.registry.get("openai").create(name="text-embedding-3-small")
 
         class Schema(LanceModel):
-            text: str = self.cohere.SourceField()
-            vector: Vector(self.cohere.ndims()) = self.cohere.VectorField()
+            text: str = self.openai.SourceField()
+            vector: Vector(self.openai.ndims()) = self.openai.VectorField()
             source: str
 
         self.db = lancedb.connect("./.lancedb")
