@@ -54,7 +54,7 @@ export default function Home() {
       {isFirstVisit && (
         <video
           ref={videoRef}
-          className='fixed top-0 left-0 w-full h-full object-cover transition-opacity duration-1000'
+          className='fixed top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 z-50'
           src={openingVideo}
           playsInline
           muted
