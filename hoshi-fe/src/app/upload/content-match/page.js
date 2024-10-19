@@ -19,6 +19,8 @@ import {
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { sepolia } from 'viem/chains';
 import { readContract, writeContract } from 'viem/actions';
+import Posts from '../../../../../db/posts.json';
+import Users from '../../../../../db/users.json';
 
 export default function ContentMatchPage() {
   const router = useRouter();
@@ -29,6 +31,8 @@ export default function ContentMatchPage() {
   const [parentImage, setParentImage] = useState('');
   const [similarityScore, setSimilarityScore] = useState();
   const { primaryWallet } = useDynamicContext();
+  const [userHandle, setUserHandle] = useState('');
+  const [userIcon, setUserIcon] = useState('');
 
   const pinata = new PinataSDK({
     pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT,
@@ -95,14 +99,18 @@ export default function ContentMatchPage() {
 
   async function searchAPI(text, file, component) {
     return {
-      file: 'data/images/image_20.png',
+      // file: 'data/images/image_20.png',
+      file: '../db/media/gojo.png',
       parent_type: 'media',
       score: 0.6549215912818909,
       edited_media:
         'iVBORw0KGgoAAAANSUhEUgAAAs0AAAOYCAIAAAChGVkmAAEAAE…6yafJYw36WG9bBKwIAPwv2snLcd0N/ZkAAAAASUVORK5CYII=',
       parent_img:
         'iVBORw0KGgoAAAANSUhEUgAAA/kAAAdZCAYAAACgFtrxAAEAAE…8Y2Njg1dffbWbhroL5/8PANTN0wzDeskAAAAASUVORK5CYII=',
+      token_id: 7,
     };
+
+    // return {
     // const formData = new FormData();
 
     // formData.append('text', text);
@@ -142,8 +150,20 @@ export default function ContentMatchPage() {
           uploadData.component
         );
         // get back parent and similarity score
+        // const updatedEditedMedia = res.edited_media.replace(
+        //   '../db/media',
+        //   '/media'
+        // );
+        // const updatedParentMedia = res.parent_img.replace(
+        //   '../db/media',
+        //   '/media'
+        // );
         setEditedImage(res.edited_media);
         setParentImage(res.parent_img);
+        console.log(Posts[res.token_id].user_handle);
+
+        setUserHandle(Posts[res.token_id].user_handle);
+        setUserIcon(`/media/${Users[Posts[res.token_id].user_handle]}`);
         if (res.score > 0.2) {
           setIsDerivative(true);
         }
@@ -354,7 +374,7 @@ export default function ContentMatchPage() {
                           className='object-cover'
                         />
                       </div>
-                      <span className='text-xs text-gray-300'>@user</span>
+                      <span className='text-xs text-gray-300'>@limrik</span>
                     </div>
                   </div>
                 )}
@@ -374,18 +394,18 @@ export default function ContentMatchPage() {
                   <div className='w-1/2 relative overflow-hidden'>
                     <div className='text-md'>Edited Image</div>
                     <div className='aspect-w-16 aspect-h-9'>
-                      <Image
+                      {/* <Image
                         src={URL.createObjectURL(uploadData.file)}
                         alt='Uploaded preview'
                         width={400}
                         height={225}
                         className='w-full h-full object-cover rounded-lg'
-                      />
-                      {/* <img
+                      /> */}
+                      <img
                         src={`data:image/png;base64,${editedImage}`}
                         alt='Edited Image'
                         style={{ width: '400px', height: '225px' }}
-                      /> */}
+                      />
                     </div>
                   </div>
                 )}
@@ -393,30 +413,32 @@ export default function ContentMatchPage() {
                   <div className='w-1/2 relative'>
                     <div className='text-md'>Parent Content</div>
                     <div className='aspect-w-16 aspect-h-9 '>
-                      <Image
+                      {/* <Image
                         src={URL.createObjectURL(uploadData.file)}
                         alt='Uploaded preview'
                         width={400}
                         height={225}
                         className='w-full h-full object-cover rounded-lg'
+                      /> */}
+                      <img
+                        src={`data:image/png;base64,${parentImage}`}
+                        alt='Parent Image'
+                        style={{ width: '400px', height: '225px' }}
                       />
                       <div className='absolute translate-y-1/4 bottom-0 right-2 flex items-center bg-gray-700 rounded-full py-1 px-2 shadow-md'>
                         <div className='w-6 h-6 rounded-full overflow-hidden bg-purple-600 flex items-center justify-center mr-2'>
                           <Image
-                            src={hakiIcon}
+                            src={userIcon}
                             alt='User profile'
                             width={24}
                             height={24}
                             className='object-cover'
                           />
                         </div>
-                        <span className='text-xs text-gray-300'>@user</span>
+                        <span className='text-xs text-gray-300'>
+                          @{userHandle}
+                        </span>
                       </div>
-                      {/* <img
-                        src={`data:image/png;base64,${parentImage}`}
-                        alt='Parent Image'
-                        style={{ width: '400px', height: '225px' }}
-                      /> */}
                     </div>
                   </div>
                 )}
