@@ -166,3 +166,4 @@ cython_debug/
 *.png
 notes.md
 *.mp4
+*.ipynb
