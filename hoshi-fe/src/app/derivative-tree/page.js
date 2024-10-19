@@ -11,23 +11,27 @@ import { Stars } from '../components/derivative-tree-components/Stars';
 import { Graph } from '../components/derivative-tree-components/Graph';
 import hakiIcon from '../media/user-icon/haki.png';
 import { useRouter } from 'next/navigation';
+// import Posts from '../../../../db/posts.json';
+// import Users from '../../../../db/users.json';
+// import {
+//   HOSHINFT_ABI,
+//   HOSHINFT_CONTRACT_ADDRESS,
+// } from '../../../contracts/hoshiNFT/hoshiNFT';
 
 const createNode = (
   id,
   size,
   text,
-  date,
-  authorName,
-  authorIcon,
+  userName,
+  userIcon,
   media = null,
   children = []
 ) => ({
   id,
   size,
   text,
-  date,
-  authorName,
-  authorIcon,
+  userName,
+  userIcon,
   media,
   children,
 });
@@ -61,12 +65,41 @@ export default function DerivativeTree() {
   const [selectedNode, setSelectedNode] = useState(null);
   const resetCamera = useRef(null);
   const router = useRouter();
+  // const { primaryWallet } = useDynamicContext();
+
+  // // using tokenId get the parents
+  // // programatically add to tree
+
+  // // function to get Image
+  // const getPost = async (tokenId) => {
+  //   // get post information
+  //   const media = Posts[tokenId].fpath.replace('../db', '');
+  //   const text = Posts[tokenId].caption;
+  //   // get user information
+  //   const userName = Posts[tokenId].user_handle;
+  //   const userIcon = `/media/${Users[Posts[tokenId].user_handle]}`;
+
+  //   // get children
+  //   try {
+  //     const walletClient = await primaryWallet.getWalletClient();
+  //     const [address] = await walletClient.getAddresses();
+
+  //     const parents = await readContract(walletClient, {
+  //       address: HOSHINFT_CONTRACT_ADDRESS,
+  //       abi: HOSHINFT_ABI,
+  //       functionName: 'getParents',
+  //       args: [address],
+  //       chain: sepolia,
+  //     });
+  //   } catch (error) {
+  //     console.error('Error interacting with the contract:', error);
+  //   }
+  // };
 
   const data = createNode(
     'root',
     0.5,
     'This is the first post but I think it is a good one. Somehow or rather ',
-    '2023-06-01',
     'John Doe',
     hakiIcon,
     hakiIcon,
@@ -75,7 +108,6 @@ export default function DerivativeTree() {
         'child1',
         0.4,
         'Interesting point...',
-        '2023-06-02',
         'Jane Smith',
         hakiIcon,
         hakiIcon,
@@ -84,7 +116,6 @@ export default function DerivativeTree() {
             'grandchild1',
             0.3,
             'I agree with...',
-            '2023-06-03',
             'Bob Johnson',
             hakiIcon,
             [
@@ -92,7 +123,6 @@ export default function DerivativeTree() {
                 'greatgrandchild1',
                 0.2,
                 "Let's dive deeper...",
-                '2023-06-04',
                 'Alice Brown',
                 hakiIcon
               ),
@@ -102,7 +132,6 @@ export default function DerivativeTree() {
             'grandchild2',
             0.3,
             'Another perspective...',
-            '2023-06-03',
             'Emma Wilson',
             hakiIcon
           ),
@@ -112,7 +141,6 @@ export default function DerivativeTree() {
         'child2',
         0.4,
         'I have a different view...',
-        '2023-06-02',
         'Michael Lee',
         hakiIcon,
         [
@@ -120,7 +148,6 @@ export default function DerivativeTree() {
             'grandchild3',
             0.3,
             'I see what you mean...',
-            '2023-06-03',
             'Sarah Davis',
             hakiIcon
           ),
@@ -130,7 +157,6 @@ export default function DerivativeTree() {
         'child3',
         0.4,
         "Here's another angle...",
-        '2023-06-02',
         'David Miller',
         hakiIcon
       ),
@@ -205,10 +231,10 @@ export default function DerivativeTree() {
               </div>
               <div className='flex flex-row justify-between items-center mt-2'>
                 <div className='flex items-center'>
-                  {selectedNode.authorIcon ? (
+                  {selectedNode.userIcon ? (
                     <Image
-                      src={selectedNode.authorIcon}
-                      alt={selectedNode.authorName}
+                      src={selectedNode.userIcon}
+                      alt={selectedNode.userName}
                       width={32}
                       height={32}
                       className='rounded-full mr-2'
@@ -216,9 +242,8 @@ export default function DerivativeTree() {
                   ) : (
                     <UserCircle size={32} className='mr-2' />
                   )}
-                  <span>{selectedNode.authorName}</span>
+                  <span>{selectedNode.userName}</span>
                 </div>
-                <p className='text-gray-400'>{selectedNode.date}</p>
               </div>
             </div>
           </motion.div>
