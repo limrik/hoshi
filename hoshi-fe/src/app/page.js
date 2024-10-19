@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useVideo } from './providers/VideoProvider';
 import hoshiLogoLight from './media/logo/hoshi-logo-light.png';
 import { Ellipsis, Flame, MessageCircle, Network } from 'lucide-react';
@@ -24,7 +24,42 @@ export default function Home() {
   const openDrawer = (index) => setSelectedPost(index);
   const closeDrawer = () => setSelectedPost(null);
 
-  const [posts, setPosts] = useState(Posts);
+  const [posts, setPosts] = useState('');
+
+  async function getPosts() {
+    console.log('POSTS');
+    try {
+      const response = await fetch(
+        'https://e3c4-104-244-25-79.ngrok-free.app/posts/',
+        {
+          method: 'GET',
+          headers: {
+            'ngrok-skip-browser-warning': '69420',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error Response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+      return error;
+    }
+  }
+
+  useEffect(() => {
+    getPosts().then((data) => {
+      setPosts(data);
+    });
+    console.log(posts);
+  }, []);
 
   const handleLikeClick = async (id) => {
     // interact with smart contract
@@ -101,7 +136,12 @@ export default function Home() {
           </header>
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
             {posts.map((post, id) => {
-              const updatedFpath = post.fpath.replace('../db/media', '/media');
+              console.log(JSON.stringify(post));
+              const updatedFpath = post.fpath.replace(
+                '../db/media',
+                '/db/media/'
+              );
+              console.log(updatedFpath);
               const user = Users.find(
                 (user) => user.hoshiHandle === post.user_handle
               );

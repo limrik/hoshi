@@ -256,12 +256,21 @@ export default function ContentMatchPage() {
   // upload: text, file, token_id, user_id
 
   async function uploadAPI(text, file, token_id, user_id) {
+    const formData = new FormData();
+
+    formData.append('text', text);
+    formData.append('file', file);
+    formData.append('token_id', token_id);
+    formData.append('user_id', user_id);
     try {
       const response = await fetch(
-        'https://7bdb-2607-fea8-75e-c700-84a1-5c17-c718-3d0.ngrok-free.app/search',
+        'https://e3c4-104-244-25-79.ngrok-free.app/upload',
         {
           method: 'POST',
           body: formData,
+          headers: {
+            'ngrok-skip-browser-warning': '69420',
+          },
         }
       );
 
@@ -335,6 +344,7 @@ export default function ContentMatchPage() {
     // );
     // console.log(tokenId);
 
+    const tokenId = 1;
     await uploadAPI(uploadData.content, uploadData.file, tokenId, userHandle);
 
     // router.push('/');
