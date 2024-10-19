@@ -4,7 +4,6 @@ import { useVideo } from './providers/VideoProvider';
 import hoshiLogoLight from './media/logo/hoshi-logo-light.png';
 import { Ellipsis, Flame, MessageCircle, Network } from 'lucide-react';
 import Image from 'next/image';
-import hakiIcon from './media/user-icon/haki.png';
 import { motion } from 'framer-motion';
 import { FaRegStar, FaStar } from 'react-icons/fa';
 import Drawer from './components/Drawer';
@@ -12,6 +11,7 @@ import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import LoginPage from './components/LoginPage';
 import Posts from '../../../db/posts.json';
 import Users from '../../../db/users.json';
+import { writeContract } from 'viem/actions';
 
 export default function Home() {
   const { user } = useDynamicContext();
@@ -26,16 +26,34 @@ export default function Home() {
 
   const [posts, setPosts] = useState(Posts);
 
-  const handleLikeClick = (id) => {
+  const handleLikeClick = async (id) => {
+    // interact with smart contract
+    console.log(id);
+    try {
+      const walletClient = await primaryWallet.getWalletClient();
+
+      const tx = await writeContract(walletClient, {
+        address: HOSHITOKEN_CONTRACT_ADDRESS,
+        abi: HOSHITOKEN_ABI,
+        functionName: 'likePost',
+        args: [id, 100 * 10 ** 18],
+        chain: sepolia,
+      });
+      console.log('Subscription transaction sent:', tx);
+
+      const receipt = await tx.wait();
+      console.log('Transaction confirmed:', receipt);
+    } catch (error) {
+      console.error('Error interacting with the contract:', error);
+    }
+
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
-        post.id === id
+        post.token_id === id
           ? {
               ...post,
-              liked: !post.liked,
-              likes_count: post.liked
-                ? post.likes_count - 1
-                : post.likes_count + 1,
+              liked: true,
+              likes_count: post.liked ? post.likes_count : post.likes_count + 1,
             }
           : post
       )
@@ -99,7 +117,7 @@ export default function Home() {
                     />
                     <div>{post.user_handle}</div>
                     <button
-                      onClick={() => openDrawer(post.id)}
+                      onClick={() => openDrawer(id)}
                       className='ml-auto flex border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'
                     >
                       <Ellipsis size={20} color='#fff4d1' />
@@ -121,7 +139,7 @@ export default function Home() {
                     <div className='relative inline-block'>
                       <motion.div
                         whileTap={{ scale: 0.8 }}
-                        onClick={() => handleLikeClick(post.id)}
+                        onClick={() => handleLikeClick(post.token_id)}
                         style={{ cursor: 'pointer' }}
                         aria-pressed={post.liked}
                         aria-label={post.liked ? 'Unlike' : 'Like'}
