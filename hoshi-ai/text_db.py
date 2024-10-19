@@ -3,9 +3,18 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from lancedb.rerankers import LinearCombinationReranker
 from lancedb.pydantic import Vector, LanceModel
 from lancedb.embeddings import EmbeddingFunctionRegistry
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def cosine_sim(str1, str2):
+    vectorizer = CountVectorizer().fit_transform([str1, str2])
+    vectors = vectorizer.toarray()
+    cos_sim = cosine_similarity(vectors)
+    return cos_sim[0][1]
 
 
 class TextDB:
@@ -22,6 +31,7 @@ class TextDB:
         self.table = self.db.create_table(table_name, schema=Schema, exist_ok=True)
         self.table.create_fts_index("text", replace=True)
         self.splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=150)
+        # self.reranker = LinearCombinationReranker(weight=0.2)  # Full text search is 0.8
         self.reranker = LinearCombinationReranker(weight=0.5)
 
     def add_text(self, text: str, source: str):
@@ -35,4 +45,10 @@ class TextDB:
 
     def search(self, text_query: str, k: int = 1):
         res = self.table.search(text_query, query_type="hybrid").limit(k).to_list()
-        return res
+        out = []
+        for item in res:
+            source = item["source"]
+            text = item["text"]
+            score = cosine_sim(text_query, text)
+            out.append({"source": source, "score": score})
+        return out
