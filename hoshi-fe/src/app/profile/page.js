@@ -36,23 +36,28 @@ export default function ProfilePage() {
                 className='rounded-full object-cover'
                 unoptimized
               />
-              <div className='flex flex-col'>
-                <p className='text-lg font-semibold leading-tight'>
-                  {user.metadata.Name}
-                </p>
-                <p className='text-sm text-gray-400 leading-tight'>
-                  {user.metadata.Hoshihandle}
-                </p>
-              </div>
+              {user && (
+                <div className='flex flex-col'>
+                  <p className='text-lg font-semibold leading-tight'>
+                    {user.metadata.Name}
+                  </p>
+                  <p className='text-sm text-gray-400 leading-tight'>
+                    {user.metadata.Hoshihandle}
+                  </p>
+                </div>
+              )}
             </div>
 
             <button className='border border-gray-700 rounded-lg p-2 transition-colors duration-200 hover:bg-gray-700 hover:border-gray-600'>
               <DollarSign size={20} onClick={handleClick} />
             </button>
           </div>
-          <p className='text-sm text-gray-400 leading-tight'>
-            {user.metadata.Bio}
-          </p>
+          {user && (
+            <p className='text-sm text-gray-400 leading-tight'>
+              {user.metadata.Bio}
+            </p>
+          )}
+
           <div className='flex justify-center'>
             <button
               className='inline-flex items-center border border-yellow-500 rounded-lg p-2 gap-2 text-yellow-500 transition-all duration-200 hover:shadow-[0_0_10px_3px_rgba(255,255,0,0.6)] hover:border-transparent group'
