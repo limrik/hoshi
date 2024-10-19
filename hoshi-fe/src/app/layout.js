@@ -3,6 +3,7 @@ import './globals.css';
 import Navbar from './components/Navbar';
 import { VideoProvider } from './providers/VideoProvider';
 import DynamicProviderWrapper from './components/DynamicProviderWrapper';
+import { UploadProvider } from './providers/UploadProvider';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -27,14 +28,16 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <DynamicProviderWrapper>
-          <VideoProvider>
-            <div className='min-h-screen flex flex-col'>
-              <main className='flex-grow overflow-y-auto pb-16'>
-                {children}
-              </main>
-              <Navbar />
-            </div>
-          </VideoProvider>
+          <UploadProvider>
+            <VideoProvider>
+              <div className='min-h-screen flex flex-col'>
+                <main className='flex-grow overflow-y-auto pb-16'>
+                  {children}
+                </main>
+                <Navbar />
+              </div>
+            </VideoProvider>
+          </UploadProvider>
         </DynamicProviderWrapper>
       </body>
     </html>

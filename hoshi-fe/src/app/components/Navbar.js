@@ -25,7 +25,7 @@ export default function Navbar() {
   return (
     <nav className='fixed bottom-0 left-0 right-0 flex justify-around items-center h-16 bg-[#1C1C1E] border-t border-gray-700 z-40'>
       <NavItem href='/' icon={Home} />
-      <NavItem href='/search' icon={Search} />
+      {/* <NavItem href='/search' icon={Search} /> */}
       <NavItem href='/upload' icon={Upload} />
       <NavItem href='/profile' icon={User} />
     </nav>
