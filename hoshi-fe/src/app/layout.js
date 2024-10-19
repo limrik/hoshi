@@ -1,6 +1,7 @@
 import localFont from 'next/font/local';
 import './globals.css';
 import Navbar from './components/Navbar';
+import { VideoProvider } from './providers/VideoProvider';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -24,10 +25,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className='min-h-screen flex flex-col'>
-          <main className='flex-grow overflow-y-auto pb-16'>{children}</main>
-          <Navbar />
-        </div>
+        <VideoProvider>
+          <div className='min-h-screen flex flex-col'>
+            <main className='flex-grow overflow-y-auto pb-16'>{children}</main>
+            <Navbar />
+          </div>
+        </VideoProvider>
       </body>
     </html>
   );
