@@ -124,51 +124,49 @@ export default function CreatePage() {
             </div>
             <AnimatePresence>
               {uploadData.file && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className='relative mt-2 rounded-xl overflow-hidden bg-gray-800'
-                >
-                  {/* Wrap the media in a container with a max-width */}
-                  <div className='max-w-md mx-auto'>
-                    {' '}
-                    {/* Adjust max-width as needed */}
-                    <div className='aspect-w-16 aspect-h-9'>
+                <div className='flex justify-center'>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className='relative mt-2 rounded-xl overflow-hidden bg-gray-800 inline-block w-fit'
+                  >
+                    {/* Media Container */}
+                    <div>
                       {uploadData.file.type.startsWith('video/') ? (
                         <video
                           src={URL.createObjectURL(uploadData.file)}
                           controls
-                          className='w-full h-full object-cover'
+                          className='object-cover h-auto mx-auto'
                         />
                       ) : (
                         <Image
                           src={URL.createObjectURL(uploadData.file)}
                           alt='Uploaded preview'
-                          width={800}
-                          height={450}
-                          className='w-full h-full object-cover'
+                          width={400}
+                          height={225}
+                          className='object-cover h-auto mx-auto'
                         />
                       )}
                     </div>
-                  </div>
-                  <div className='absolute top-2 right-2 flex space-x-2'>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className='bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition-colors'
-                      aria-label='Edit image'
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => setUploadData({ file: null })}
-                      className='bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition-colors'
-                      aria-label='Remove image'
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                </motion.div>
+                    <div className='absolute top-2 right-2 flex space-x-2'>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className='bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition-colors'
+                        aria-label='Edit image'
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        onClick={() => setUploadData({ file: null })}
+                        className='bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition-colors'
+                        aria-label='Remove image'
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
               )}
               <div className='mt-4'>
                 <h2 className='mb-1 font-bold mx-2'>
