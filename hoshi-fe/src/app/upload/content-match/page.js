@@ -19,8 +19,8 @@ import {
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { sepolia } from 'viem/chains';
 import { readContract, writeContract } from 'viem/actions';
-import Posts from '../../../../../db/posts.json';
-import Users from '../../../../../db/users.json';
+import Posts from '../../../../public/db/posts.json';
+import Users from '../../../../public/db/users.json';
 
 export default function ContentMatchPage() {
   const router = useRouter();
@@ -253,32 +253,89 @@ export default function ContentMatchPage() {
     }
   }
 
+  // upload: text, file, token_id, user_id
+
+  async function uploadAPI(text, file, token_id, user_id) {
+    try {
+      const response = await fetch(
+        'https://7bdb-2607-fea8-75e-c700-84a1-5c17-c718-3d0.ngrok-free.app/search',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error Response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  async function getPosts() {
+    console.log('POSTS');
+    try {
+      const response = await fetch(
+        'https://e3c4-104-244-25-79.ngrok-free.app/posts/',
+        {
+          method: 'GET',
+          headers: {
+            'ngrok-skip-browser-warning': '69420',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error Response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+      return error;
+    }
+  }
+
   const handlePost = async () => {
-    const parentTokenID = 1;
-    const walletClient = await primaryWallet.getWalletClient();
-    // upload upload.file to ipfs via pinata
-    const IPFSTokenURI = await addDataToIPFS();
+    const posts = await getPosts();
+    console.log(posts);
+    // const parentTokenID = 1;
+    // const walletClient = await primaryWallet.getWalletClient();
+    // // upload upload.file to ipfs via pinata
+    // const IPFSTokenURI = await addDataToIPFS();
 
-    // mint NFT
-    // 1. get parentTokenIds
-    const parents = await getParentTokenIds(walletClient, parentTokenID);
-    parents.unshift(parentTokenID);
+    // // mint NFT
+    // // 1. get parentTokenIds
+    // const parents = await getParentTokenIds(walletClient, parentTokenID);
+    // parents.unshift(parentTokenID);
 
-    // 2. get similarityScoresInput
-    const similarityScores = await getSimilarityScores(
-      walletClient,
-      parentTokenID
-    );
-    similarityScores.unshift(70);
+    // // 2. get similarityScoresInput
+    // const similarityScores = await getSimilarityScores(
+    //   walletClient,
+    //   parentTokenID
+    // );
+    // similarityScores.unshift(70);
 
-    const tokenId = await mintNFT(
-      walletClient,
-      parents,
-      similarityScores,
-      IPFSTokenURI
-    );
-    console.log(tokenId);
-    // also store in local storage
+    // const tokenId = await mintNFT(
+    //   walletClient,
+    //   parents,
+    //   similarityScores,
+    //   IPFSTokenURI
+    // );
+    // console.log(tokenId);
+
+    await uploadAPI(uploadData.content, uploadData.file, tokenId, userHandle);
 
     // router.push('/');
   };

@@ -1,0 +1,22 @@
+[
+  {
+    "hoshiHandle": "limrik",
+    "imagePath": "user_icons/limrik.jpeg",
+    "walletAddress": "0xAbC123456789abcdef123456789AbCdEf1234567"
+  },
+  {
+    "hoshiHandle": "gregtanym",
+    "imagePath": "user_icons/gregtanym.jpeg",
+    "walletAddress": "0xDeF987654321abcdef987654321DeF9876543210"
+  },
+  {
+    "hoshiHandle": "nrehiew",
+    "imagePath": "user_icons/nrehiew.jpeg",
+    "walletAddress": "0x123456789AbCdEf123456789abcdef123456789A"
+  },
+  {
+    "hoshiHandle": "vitalik",
+    "imagePath": "user_icons/vitalik.jpeg",
+    "walletAddress": "0x123456789AbCdEf123456789abcdef123456789A"
+  }
+]
