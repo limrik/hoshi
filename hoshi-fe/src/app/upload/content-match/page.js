@@ -134,11 +134,6 @@ export default function ContentMatchPage() {
 
   useEffect(() => {
     async function performSearch() {
-      console.log('useEffect dependencies:', {
-        content: uploadData.content,
-        file: uploadData.file,
-        component: uploadData.component,
-      });
       setStage('checking');
       try {
         const res = await searchAPI(
@@ -147,7 +142,6 @@ export default function ContentMatchPage() {
           uploadData.component
         );
         // get back parent and similarity score
-        console.log(res);
         setEditedImage(res.edited_media);
         setParentImage(res.parent_img);
         if (res.score > 0.2) {
@@ -436,25 +430,28 @@ export default function ContentMatchPage() {
               <div className='flex flex-col gap-2 mt-10'>
                 <div className='flex gap-2'>
                   <button
-                    className='bg-purple-400 hover:bg-purple-500 text-white px-4 py-4 rounded-lg font-semibold text-sm flex-1 transition transform hover:scale-105 duration-300'
+                    className='bg-purple-400 hover:bg-purple-500 text-white px-4 py-4 rounded-lg font-semibold text-sm flex-1 overflow-hidden transition-transform duration-300'
                     onClick={() => router.push('/derivative-tree')}
                   >
-                    Derivative Tree
+                    <span className='block transform hover:scale-105'>
+                      Derivative Tree
+                    </span>
                   </button>
 
                   <button
-                    className='bg-purple-400 hover:bg-purple-500 text-white px-4 py-4 rounded-lg font-semibold text-sm flex-1 transition transform hover:scale-105 duration-300'
+                    className='bg-purple-400 hover:bg-purple-500 text-white px-4 py-4 rounded-lg font-semibold text-sm flex-1 overflow-hidden transition-transform duration-300'
                     onClick={() => router.push('/dispute')}
                   >
-                    Submit a Dispute
+                    <span className='block transform hover:scale-105'>
+                      Submit a Dispute
+                    </span>
                   </button>
                 </div>
-
                 <button
-                  className='bg-purple-600 hover:bg-purple-700 text-white px-4 py-4 rounded-lg font-semibold text-sm transition transform hover:scale-105 duration-300 mt-4'
+                  className='bg-purple-600 hover:bg-purple-700 text-white px-4 py-4 rounded-lg font-semibold text-sm mt-4 overflow-hidden transition-transform duration-300'
                   onClick={handlePost}
                 >
-                  Post
+                  <span className='block transform hover:scale-105'>Post</span>
                 </button>
               </div>
             </motion.div>

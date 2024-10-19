@@ -10,6 +10,8 @@ import { FaRegStar, FaStar } from 'react-icons/fa';
 import Drawer from './components/Drawer';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import LoginPage from './components/LoginPage';
+import Posts from '../../../db/posts.json';
+import Users from '../../../db/users.json';
 
 export default function Home() {
   const { user } = useDynamicContext();
@@ -22,11 +24,7 @@ export default function Home() {
   const openDrawer = (index) => setSelectedPost(index);
   const closeDrawer = () => setSelectedPost(null);
 
-  const [posts, setPosts] = useState([
-    { id: 1, content: 'This is a post', liked: false, likesCount: 10 },
-    { id: 2, content: 'Another post content', liked: false, likesCount: 5 },
-    { id: 3, content: 'Yet another post', liked: false, likesCount: 7 },
-  ]);
+  const [posts, setPosts] = useState(Posts);
 
   const handleLikeClick = (id) => {
     setPosts((prevPosts) =>
@@ -84,8 +82,71 @@ export default function Home() {
             </div>
           </header>
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
+            {posts.map((post) => {
+              const updatedFpath = post.fpath.replace('../db/media', '/media');
+              const userAvatar = `/media/${Users[post.user_handle]}`;
+
+              return (
+                <div key={post.token_id} className='p-8'>
+                  <div className='rounded-t-lg bg-gray-800 text-white p-4 flex items-center gap-2'>
+                    <Image
+                      src={userAvatar}
+                      alt='User avatar'
+                      width={40}
+                      height={40}
+                      className='rounded-full'
+                      unoptimized
+                    />
+                    <div>{post.user_handle}</div>
+                    <button
+                      onClick={() => openDrawer(post.id)}
+                      className='ml-auto flex border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'
+                    >
+                      <Ellipsis size={20} color='#fff4d1' />
+                    </button>
+                  </div>
+                  <div className='relative overflow-hidden'>
+                    <div className='aspect-w-16 aspect-h-9'>
+                      <Image
+                        src={updatedFpath}
+                        alt='Uploaded preview'
+                        width={800}
+                        height={450}
+                        className='w-full h-full object-cover'
+                      />
+                    </div>
+                  </div>
+                  <div className='flex items-center justify-between bg-gray-800 p-4 rounded-b-lg'>
+                    <p>{post.caption}</p>
+                    <div className='relative inline-block'>
+                      <motion.div
+                        whileTap={{ scale: 0.8 }}
+                        onClick={() => handleLikeClick(post.id)}
+                        style={{ cursor: 'pointer' }}
+                        aria-pressed={post.liked}
+                        aria-label={post.liked ? 'Unlike' : 'Like'}
+                        className='flex items-center bg-gray-800 border border-gray-400 text-white rounded-full py-1 px-2 shadow-lg'
+                      >
+                        {post.liked ? (
+                          <FaStar size={16} className='mr-1' color='#fff4d1' />
+                        ) : (
+                          <FaRegStar
+                            size={16}
+                            className='mr-1'
+                            color='#fff4d1'
+                          />
+                        )}
+                        <span className='text-sm font-bold'>
+                          {post.likes_count}
+                        </span>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
             {posts.map((post) => (
-              <div key={post.id} className='p-8'>
+              <div key={post.token_id} className='p-8'>
                 <div className='rounded-t-lg bg-gray-800 text-white p-4 flex items-center gap-2'>
                   <Image
                     src={hakiIcon}
