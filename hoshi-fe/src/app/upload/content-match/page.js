@@ -26,7 +26,7 @@ export default function ContentMatchPage() {
   const router = useRouter();
   const [stage, setStage] = useState('initial');
   const [isDerivative, setIsDerivative] = useState(false);
-  const { uploadData } = useUpload();
+  const { uploadData, setUploadData } = useUpload();
   const [editedImage, setEditedImage] = useState('');
   const [parentImage, setParentImage] = useState('');
   const [similarityScore, setSimilarityScore] = useState();
@@ -150,20 +150,20 @@ export default function ContentMatchPage() {
           uploadData.component
         );
         // get back parent and similarity score
-        // const updatedEditedMedia = res.edited_media.replace(
-        //   '../db/media',
-        //   '/media'
-        // );
-        // const updatedParentMedia = res.parent_img.replace(
-        //   '../db/media',
-        //   '/media'
-        // );
         setEditedImage(res.edited_media);
         setParentImage(res.parent_img);
         console.log(Posts[res.token_id].user_handle);
 
         setUserHandle(Posts[res.token_id].user_handle);
         setUserIcon(`/media/${Users[Posts[res.token_id].user_handle]}`);
+        setUploadData((prevData) => ({
+          ...prevData,
+          parentImage: res.parent_img,
+          editedImage: res.edited_media,
+          userHandle: Posts[res.token_id].user_handle,
+          userIcon: `/media/${Users[Posts[res.token_id].user_handle]}`,
+          similarityScore: parseFloat((res.score * 100).toFixed(2)),
+        }));
         if (res.score > 0.2) {
           setIsDerivative(true);
         }

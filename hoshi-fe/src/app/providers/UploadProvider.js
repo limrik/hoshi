@@ -20,6 +20,11 @@ export const UploadProvider = ({ children }) => {
     content: '',
     file: null,
     component: '',
+    parentImage: '',
+    editedImage: '',
+    userHandle: '',
+    userIcon: '',
+    similarityScore: null,
   });
 
   return (
