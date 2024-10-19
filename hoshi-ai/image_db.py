@@ -106,7 +106,7 @@ class ImageDB:
     def search_image(self, image_query: Image) -> dict:
         w, h = image_query.size
 
-        target_size = 518
+        target_size = 448
         scale = max(target_size / w, target_size / h)
 
         new_w = int(w * scale)
@@ -122,7 +122,7 @@ class ImageDB:
         k = 20
         results_df = self.table.search(query_embedding.cpu().tolist()).limit(k).to_pandas()
         k = len(results_df)
-        # print(results_df)
+        print(results_df)
         result_img_item = results_df.iloc[0]
         result_image_src = result_img_item["image_src"]
         result_token_id = result_img_item["token_id"]
@@ -137,8 +137,11 @@ class ImageDB:
         print("Original score", whole_score, "all scores", cosine_scores)
 
         heatmap, heatmap_scores = self._get_heatmap(image_query, result_img_embedding)
-        heatmap = cv2.applyColorMap((heatmap * 255).astype(np.uint8), cv2.COLORMAP_HOT)
+        heatmap = (heatmap * 255).astype(np.uint8)
+        heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_HOT)
+        heatmap = cv2.convertScaleAbs(heatmap, alpha=2, beta=0)
         heatmap = cv2.resize(heatmap, (w, h))
+
         overlay = cv2.addWeighted(cv2.cvtColor(np.array(image_query), cv2.COLOR_RGB2BGR), 0.2, heatmap, 1, 0)
         edited_img = Image.fromarray(cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB))
 
@@ -155,7 +158,7 @@ class ImageDB:
 
         # Compute the irrelevant score as the average of the corner patch means
         irrelevant_score = (tl_mean + tr_mean + bl_mean + br_mean) / 4
-        irrelevant_score = min(irrelevant_score, cosine_scores.min())
+        irrelevant_score = min(irrelevant_score, cosine_scores.min()).item()
         score_from_heatmap = heatmap_scores.max()
         # score_from_heatmap = (heatmap_scores.max() - irrelevant_score) / (1.0 - irrelevant_score)
         # print(heatmap_scores_adj.min(), heatmap_scores_adj.flatten())
@@ -170,8 +173,7 @@ class ImageDB:
         # heatmap_scores = heatmap_scores.flatten()
         # score_from_heatmap = sum(heatmap_scores) / len(heatmap_scores)
         # print(score_from_heatmap, whole_score)
-        # score = whole_score * 0.6 + structural_score * 0.3 + score_from_heatmap * 0.1
-        score = whole_score
+        score = whole_score * 0.6 + structural_score * 0.3 + score_from_heatmap * 0.1
         # score = 0.5 * whole_score + 0.5 * score_from_heatmap
         score = max(score, 0.0)
         score = min(score, 1.0)
@@ -273,9 +275,9 @@ class ImageDB:
         return {"image_src": most_common_result, "score": final_score, "output_video_path": output_path, "token_id": final_result_token_id}
 
     @torch.no_grad()
-    def _get_heatmap(self, query_image: Image, target_embedding: torch.Tensor, threshold: int = 75) -> Tuple[np.ndarray, np.ndarray]:
+    def _get_heatmap(self, query_image: Image, target_embedding: torch.Tensor, threshold: int = 85) -> Tuple[np.ndarray, np.ndarray]:
         num_patches_per_window = 4
-        window_size = 518
+        window_size = 224
         patch_height = window_size // num_patches_per_window
         patch_width = window_size // num_patches_per_window
         query_image = ToTensor()(query_image)

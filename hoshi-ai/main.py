@@ -7,8 +7,8 @@ import base64
 from image_db import ImageDB
 from text_db import TextDB
 
-with open("../db/users.json") as f:
-    users = json.load(f)
+# with open("../db/users.json") as f:
+#     users = json.load(f)
 with open("../db/posts.json") as f:
     posts = json.load(f)
 
@@ -63,15 +63,15 @@ async def search(text: str = Form(...), file: UploadFile = File(...), component:
     else:
         raise ValueError(f"Unknown file type: {file_type}")
     print("Text now")
-    text_results = text_db.search(text)
-    text_source = text_results[0]["source"]
-    text_score = text_results[0]["score"]
-    text_token_id = int(text_results[0]["token_id"])
-    text_content = text_results[0]["content"]
-
-    # if text is <30 words just assume not similar
-    if len(text.split()) < 30:
+    ignore_text = len(text.split()) < 30
+    if ignore_text:
         text_score = 0.0
+    else:
+        text_results = text_db.search(text)
+        text_source = text_results[0]["source"]
+        text_score = text_results[0]["score"]
+        text_token_id = int(text_results[0]["token_id"])
+        text_content = text_results[0]["content"]
 
     # if score < SCORE_MIN, assume not similar
     if text_score < SCORE_MIN:
@@ -86,11 +86,11 @@ async def search(text: str = Form(...), file: UploadFile = File(...), component:
     else:
         raise ValueError(f"Unknown component: {component}")
 
-    if text_score > media_score:
-        return {"parent_text": text_content, "file": text_source, "parent_type": "text", "score": text_score / WEIGHT_COEFFICIENT, "token_id": text_token_id}
-    else:
+    if media_score > text_score or ignore_text:
         parent_img = Image.open(media_src)
         return {"file": media_src, "parent_type": "media", "score": media_score / WEIGHT_COEFFICIENT, "edited_media": edited_media, "parent_img": encode_image(parent_img), "token_id": media_token_id}
+    else:
+        return {"parent_text": text_content, "file": text_source, "parent_type": "text", "score": text_score / WEIGHT_COEFFICIENT, "token_id": text_token_id}
 
 
 @app.post("/upload")
@@ -126,7 +126,7 @@ async def upload(text: str = Form(...), file: UploadFile = File(...), token_id: 
         f.write(text)
     with open("../db/posts.json", "w") as f:
         json.dump(posts, f)
-
+    print(image_db.table.count_rows())
     return {
         "message": "Upload successful",
     }
