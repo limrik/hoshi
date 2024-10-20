@@ -349,7 +349,7 @@ export default function ContentMatchPage() {
       similarityScores = await getSimilarityScores(walletClient, parentTokenId);
 
       parents.unshift(parentTokenId);
-      similarityScores.unshift(70);
+      similarityScores.unshift(Math.round(uploadData.similarityScore));
     }
     // mint NFT
     // 1. get parentTokenIds

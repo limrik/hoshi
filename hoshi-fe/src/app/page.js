@@ -9,19 +9,15 @@ import { FaRegStar, FaStar } from 'react-icons/fa';
 import Drawer from './components/Drawer';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import LoginPage from './components/LoginPage';
-import Posts from '../../../db/posts.json';
 import Users from '../../../db/users.json';
-import { writeContract } from 'viem/actions';
+import { readContract, writeContract } from 'viem/actions';
 import {
   HOSHITOKEN_ABI,
   HOSHITOKEN_CONTRACT_ADDRESS,
 } from '../../contracts/hoshitoken/hoshitoken';
 import { sepolia } from 'viem/chains';
 import hoshitoken from './media/logo/token-icon.png';
-import {
-  HOSHINFT_ABI,
-  HOSHINFT_CONTRACT_ADDRESS,
-} from '../../contracts/hoshiNFT/hoshiNFT';
+import { formatUnits } from 'viem';
 
 export const iliad = {
   id: 1513, // Your custom chain ID
@@ -53,9 +49,9 @@ export default function Home() {
 
   const [posts, setPosts] = useState('');
   const { primaryWallet } = useDynamicContext();
+  const [tokens, setTokens] = useState();
 
   async function getPosts() {
-    console.log('POSTS');
     try {
       const response = await fetch(
         'https://e3c4-104-244-25-79.ngrok-free.app/posts/',
@@ -86,7 +82,27 @@ export default function Home() {
     getPosts().then((data) => {
       setPosts(data);
     });
-  }, []);
+    const getHoshitokens = async () => {
+      try {
+        const walletClient = await primaryWallet.getWalletClient();
+        const [address] = await walletClient.getAddresses();
+
+        const hoshitokens = await readContract(walletClient, {
+          address: HOSHITOKEN_CONTRACT_ADDRESS,
+          abi: HOSHITOKEN_ABI,
+          functionName: 'balanceOf',
+          args: [address],
+          chain: sepolia,
+        });
+        console.log(hoshitokens);
+        setTokens(formatUnits(hoshitokens, 18));
+      } catch (error) {
+        console.error('Error interacting with the contract:', error);
+      }
+    };
+
+    getHoshitokens();
+  }, [primaryWallet]);
 
   const handleLikeClick = async (id) => {
     // interact with smart contract
@@ -189,8 +205,8 @@ export default function Home() {
               height={140}
               unoptimized
             />
-            <div className='absolute right-4 flex flex-row gap-1'>
-              <div className='text-[#fff4d1]'>100000</div>
+            <div className='absolute right-8 flex flex-row gap-1'>
+              <div className='text-[#fff4d1]'>{tokens}</div>
               <Image
                 src={hoshitoken}
                 alt='Hoshi token'
@@ -202,12 +218,10 @@ export default function Home() {
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
             {posts &&
               posts.map((post, id) => {
-                console.log(JSON.stringify(post));
                 const updatedFpath = post.fpath.replace(
                   '../db/media',
                   '/db/media'
                 );
-                console.log(updatedFpath);
                 const user = Users.find(
                   (user) => user.hoshiHandle === post.user_handle
                 );
