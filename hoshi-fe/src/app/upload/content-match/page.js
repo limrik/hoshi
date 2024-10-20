@@ -153,6 +153,7 @@ export default function ContentMatchPage() {
           uploadData.file,
           uploadData.component
         );
+
         // get back parent and similarity score
         setEditedImage(res.edited_media);
         setParentImage(res.parent_img);
@@ -513,7 +514,7 @@ export default function ContentMatchPage() {
                       /> */}
                       {uploadData.file.type.startsWith('video/') ? (
                         <video
-                          src={`data:image/png;base64,${editedImage}`}
+                          src={`data:video/mp4;base64,${editedImage}`}
                           controls
                           className='object-cover h-auto mx-auto'
                         />
@@ -543,19 +544,18 @@ export default function ContentMatchPage() {
                         height={225}
                         className='w-full h-full object-cover rounded-lg'
                       /> */}
-                      {uploadData.file.type.startsWith('video/') ? (
+                      {/* {uploadData.file.type.startsWith('video/') ? (
                         <video
                           src={`data:image/png;base64,${parentImage}`}
                           controls
                           className='object-cover h-auto mx-auto'
                         />
-                      ) : (
-                        <img
-                          src={`data:image/png;base64,${parentImage}`}
-                          alt='Edited Image'
-                          style={{ width: '400px', height: '225px' }}
-                        />
-                      )}
+                      ) : ( */}
+                      <img
+                        src={`data:image/png;base64,${parentImage}`}
+                        alt='Edited Image'
+                        style={{ width: '400px', height: '225px' }}
+                      />
                       <div className='absolute translate-y-1/4 bottom-0 right-2 flex items-center bg-gray-700 rounded-full py-1 px-2 shadow-md'>
                         <div className='w-6 h-6 rounded-full overflow-hidden bg-purple-600 flex items-center justify-center mr-2'>
                           <Image
