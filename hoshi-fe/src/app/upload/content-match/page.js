@@ -17,11 +17,17 @@ import {
   HOSHINFT_CONTRACT_ADDRESS,
 } from "../../../../contracts/hoshiNFT/hoshiNFT";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { sepolia } from "viem/chains";
 import { readContract, writeContract } from "viem/actions";
 import Posts from "../../../../public/db/posts.json";
 import Users from "../../../../public/db/users.json";
 import { iliad } from "@/app/page";
+import { toHex, http } from "viem";
+import { Account, privateKeyToAccount, Address } from "viem/accounts";
+import { StoryClient, StoryConfig } from "@story-protocol/core-sdk";
+import {
+  IPAssetRegistry_ABI,
+  IPASSETREGISTRY_CONTRACT_ADDRESS,
+} from "../../../../contracts/IPAssetRegistery/hoshitoken/IPRegistry";
 
 export default function ContentMatchPage() {
   const router = useRouter();
@@ -236,6 +242,76 @@ export default function ContentMatchPage() {
     }
   }
 
+  const createStoryClient = () => {
+    const privateKey = `0x${process.env.NEXT_PUBLIC_FAKE_WALLET_PRIVATE_KEY}`;
+    const account = privateKeyToAccount(privateKey);
+
+    const config = {
+      account: account, // the account object from above
+      transport: http(process.env.RPC_PROVIDER_URL),
+      chainId: "iliad",
+    };
+
+    const client = StoryClient.newClient(config);
+    return client;
+  };
+
+  const registerForOriginalIp = async (client, tokenId, nftUri) => {
+    const response = await client.ipAsset.register({
+      nftContract: HOSHINFT_CONTRACT_ADDRESS, // your NFT contract address
+      tokenId: tokenId, // your NFT token ID
+      ipMetadata: {
+        ipMetadataURI: nftUri,
+        ipMetadataHash: toHex("test-metadata-hash", { size: 32 }),
+        nftMetadataHash: toHex("test-nft-metadata-hash", { size: 32 }),
+        nftMetadataURI: nftUri,
+      },
+      txOptions: { waitForTransaction: true },
+    });
+
+    console.log(
+      `Root IPA created at transaction hash ${response.txHash}, IPA ID: ${response.ipId}`
+    );
+  };
+
+  const registerForDerivativeIp = async (
+    client,
+    walletClient,
+    parentTokenId,
+    childTokenId,
+    nftUri
+  ) => {
+    const parentIpId = await readContract(walletClient, {
+      address: IPASSETREGISTRY_CONTRACT_ADDRESS,
+      abi: IPASSETREGISTRY_ABI,
+      functionName: "ipId",
+      chain: iliad,
+      args: [1513, HOSHINFT_CONTRACT_ADDRESS, parentTokenId],
+    });
+    console.log("parent ip id:", parentIpId);
+
+    const response = await client.ipAsset.registerDerivativeIp({
+      nftContract: HOSHINFT_CONTRACT_ADDRESS, // your NFT contract address
+      tokenId: childTokenId,
+      derivData: {
+        parentIpIds: [parentIpId],
+        licenseTermsIds: ["2"],
+      },
+      // https://docs.story.foundation/docs/ipa-metadata-standard
+      ipMetadata: {
+        ipMetadataURI: nftUri,
+        ipMetadataHash: toHex("test-metadata-hash", { size: 32 }),
+        nftMetadataHash: toHex("test-nft-metadata-hash", { size: 32 }),
+        nftMetadataURI: nftUri,
+      },
+      txOptions: { waitForTransaction: true },
+    });
+
+    console.log(
+      `Completed at transaction hash ${response.txHash}, IPA ID: ${response.ipId}`
+    );
+  };
+
   async function mintNFT(
     walletClient,
     parentTokenIds,
@@ -263,11 +339,18 @@ export default function ContentMatchPage() {
       console.log("Token ID:", tokenId);
 
       // now i want to register the newly created nft on IPRegistery
-
-      // if it is an original work, register it as a non commercial IP with the register workflow
-
-      // if it is a derivative, get the parent
-
+      const client = await createStoryClient();
+      if (parentTokenIds.length === 0) {
+        await registerForOriginalIp(client, tokenId, IPFSTokenURI);
+      } else {
+        await registerForDerivativeIp(
+          client,
+          walletClient,
+          parentTokenIds[0],
+          tokenId,
+          IPFSTokenURI
+        );
+      }
       return tokenId;
     } catch (error) {
       console.error("Error interacting with the contract:", error);
