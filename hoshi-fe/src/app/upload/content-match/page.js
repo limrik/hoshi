@@ -28,6 +28,7 @@ import {
   IPAssetRegistry_ABI,
   IPASSETREGISTRY_CONTRACT_ADDRESS,
 } from "../../../../contracts/IPAssetRegistery/hoshitoken/IPRegistry";
+import limrik from '../../../../public/db/user_icons/limrik.jpeg';
 
 export default function ContentMatchPage() {
   const router = useRouter();
