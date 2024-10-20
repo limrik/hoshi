@@ -208,6 +208,7 @@ export default function Home() {
                 const user = Users.find(
                   (user) => user.hoshiHandle === post.user_handle
                 );
+                console.log(user);
                 const userAvatar = `/media/${user.imagePath}`;
 
                 return (
