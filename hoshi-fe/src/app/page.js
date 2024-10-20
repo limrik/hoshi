@@ -23,6 +23,23 @@ import {
   HOSHINFT_CONTRACT_ADDRESS,
 } from '../../contracts/hoshiNFT/hoshiNFT';
 
+export const iliad = {
+  id: 1513, // Your custom chain ID
+  name: "Story Network Testnet",
+  nativeCurrency: {
+    name: "Testnet IP",
+    symbol: "IP",
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: { http: ["https://testnet.storyrpc.io"] },
+  },
+  blockExplorers: {
+    default: { name: "Blockscout", url: "https://testnet.storyscan.xyz" },
+  },
+  testnet: true,
+};
+
 export default function Home() {
   const { user } = useDynamicContext();
 
@@ -83,7 +100,7 @@ export default function Home() {
           abi: HOSHITOKEN_ABI,
           functionName: 'likePost',
           args: [id, 100 * 10 ** 18],
-          chain: sepolia,
+          chain: iliad,
         });
         console.log('Subscription transaction sent:', tx);
 
