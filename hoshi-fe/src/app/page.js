@@ -12,6 +12,15 @@ import LoginPage from './components/LoginPage';
 import Posts from '../../../db/posts.json';
 import Users from '../../../db/users.json';
 import { writeContract } from 'viem/actions';
+import {
+  HOSHITOKEN_ABI,
+  HOSHITOKEN_CONTRACT_ADDRESS,
+} from '../../contracts/hoshitoken/hoshitoken';
+import { sepolia } from 'viem/chains';
+import {
+  HOSHINFT_ABI,
+  HOSHINFT_CONTRACT_ADDRESS,
+} from '../../contracts/hoshiNFT/hoshiNFT';
 
 export default function Home() {
   const { user } = useDynamicContext();
@@ -25,6 +34,7 @@ export default function Home() {
   const closeDrawer = () => setSelectedPost(null);
 
   const [posts, setPosts] = useState('');
+  const { primaryWallet } = useDynamicContext();
 
   async function getPosts() {
     console.log('POSTS');
@@ -58,29 +68,65 @@ export default function Home() {
     getPosts().then((data) => {
       setPosts(data);
     });
-    console.log(posts);
   }, []);
 
   const handleLikeClick = async (id) => {
     // interact with smart contract
-    console.log(id);
-    try {
-      const walletClient = await primaryWallet.getWalletClient();
+    // console.log(id);
+    const handleLike = async () => {
+      try {
+        const walletClient = await primaryWallet.getWalletClient();
 
-      const tx = await writeContract(walletClient, {
-        address: HOSHITOKEN_CONTRACT_ADDRESS,
-        abi: HOSHITOKEN_ABI,
-        functionName: 'likePost',
-        args: [id, 100 * 10 ** 18],
-        chain: sepolia,
-      });
-      console.log('Subscription transaction sent:', tx);
+        const tx = await writeContract(walletClient, {
+          address: HOSHITOKEN_CONTRACT_ADDRESS,
+          abi: HOSHITOKEN_ABI,
+          functionName: 'likePost',
+          args: [id, 100 * 10 ** 18],
+          chain: sepolia,
+        });
+        console.log('Subscription transaction sent:', tx);
 
-      const receipt = await tx.wait();
-      console.log('Transaction confirmed:', receipt);
-    } catch (error) {
-      console.error('Error interacting with the contract:', error);
-    }
+        const receipt = await tx.wait();
+        console.log('Transaction confirmed:', receipt);
+      } catch (error) {
+        console.error('Error interacting with the contract:', error);
+      }
+    };
+    handleLike();
+
+    // const handleLike = async () => {
+    //   try {
+    //     const walletClient = await primaryWallet.getWalletClient();
+
+    //     const tx = await writeContract(walletClient, {
+    //       address: HOSHINFT_CONTRACT_ADDRESS,
+    //       abi: HOSHINFT_ABI,
+    //       functionName: 'mintNFT',
+    //       args: [
+    //         '0xFa5530BE79c0dce48De0Da80a1A11Bf8465B99d9',
+    //         [],
+    //         [],
+    //         'https://tomato-occupational-carp-281.mypinata.cloud/ipfs/QmRZjD9NPqi153TEz8fpXfyiyt3YSBNEjWxqnJPHRy2Bmc',
+    //       ],
+    //       chain: sepolia,
+    //     });
+    //     console.log('Subscription transaction sent:', tx);
+
+    //     const receipt = await tx.wait();
+
+    //     const transferEvent = receipt.events.find(
+    //       (event) => event.event === 'NFTMinted'
+    //     );
+
+    //     // Extract the token ID (3rd argument in the Transfer event)
+    //     const tokenId = transferEvent.args[2].toNumber(); // Assuming tokenId is a uint256
+    //     console.log('Minted Token ID:', tokenId);
+    //     console.log('Transaction confirmed:', receipt);
+    //   } catch (error) {
+    //     console.error('Error interacting with the contract:', error);
+    //   }
+    // };
+    // handleLike();
 
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
@@ -88,7 +134,7 @@ export default function Home() {
           ? {
               ...post,
               liked: true,
-              likes_count: post.liked ? post.likes_count : post.likes_count + 1,
+              liked_count: post.liked ? post.liked_count : post.liked_count + 1,
             }
           : post
       )
@@ -135,77 +181,82 @@ export default function Home() {
             </div>
           </header>
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
-            {posts.map((post, id) => {
-              console.log(JSON.stringify(post));
-              const updatedFpath = post.fpath.replace(
-                '../db/media',
-                '/db/media/'
-              );
-              console.log(updatedFpath);
-              const user = Users.find(
-                (user) => user.hoshiHandle === post.user_handle
-              );
-              const userAvatar = `/media/${user.imagePath}`;
+            {posts &&
+              posts.map((post, id) => {
+                console.log(JSON.stringify(post));
+                const updatedFpath = post.fpath.replace(
+                  '../db/media',
+                  '/db/media'
+                );
+                console.log(updatedFpath);
+                const user = Users.find(
+                  (user) => user.hoshiHandle === post.user_handle
+                );
+                const userAvatar = `/media/${user.imagePath}`;
 
-              return (
-                <div key={id} className='p-8'>
-                  <div className='rounded-t-lg bg-gray-800 text-white p-4 flex items-center gap-2'>
-                    <Image
-                      src={userAvatar}
-                      alt='User avatar'
-                      width={40}
-                      height={40}
-                      className='rounded-full'
-                      unoptimized
-                    />
-                    <div>{post.user_handle}</div>
-                    <button
-                      onClick={() => openDrawer(id)}
-                      className='ml-auto flex border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'
-                    >
-                      <Ellipsis size={20} color='#fff4d1' />
-                    </button>
-                  </div>
-                  <div className='relative overflow-hidden'>
-                    <div className='aspect-w-16 aspect-h-9'>
+                return (
+                  <div key={id} className='p-8'>
+                    <div className='rounded-t-lg bg-gray-800 text-white p-4 flex items-center gap-2'>
                       <Image
-                        src={updatedFpath}
-                        alt='Uploaded preview'
-                        width={800}
-                        height={450}
-                        className='w-full h-full object-cover'
+                        src={userAvatar}
+                        alt='User avatar'
+                        width={40}
+                        height={40}
+                        className='rounded-full'
+                        unoptimized
                       />
-                    </div>
-                  </div>
-                  <div className='flex items-center justify-between bg-gray-800 p-4 rounded-b-lg'>
-                    <p>{post.caption}</p>
-                    <div className='relative inline-block'>
-                      <motion.div
-                        whileTap={{ scale: 0.8 }}
-                        onClick={() => handleLikeClick(post.token_id)}
-                        style={{ cursor: 'pointer' }}
-                        aria-pressed={post.liked}
-                        aria-label={post.liked ? 'Unlike' : 'Like'}
-                        className='flex items-center bg-gray-800 border border-gray-400 text-white rounded-full py-1 px-2 shadow-lg'
+                      <div>{post.user_handle}</div>
+                      <button
+                        onClick={() => openDrawer(id)}
+                        className='ml-auto flex border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'
                       >
-                        {post.liked ? (
-                          <FaStar size={16} className='mr-1' color='#fff4d1' />
-                        ) : (
-                          <FaRegStar
-                            size={16}
-                            className='mr-1'
-                            color='#fff4d1'
-                          />
-                        )}
-                        <span className='text-sm font-bold'>
-                          {post.likes_count}
-                        </span>
-                      </motion.div>
+                        <Ellipsis size={20} color='#fff4d1' />
+                      </button>
+                    </div>
+                    <div className='relative overflow-hidden'>
+                      <div className='aspect-w-16 aspect-h-9'>
+                        <Image
+                          src={updatedFpath}
+                          alt='Uploaded preview'
+                          width={800}
+                          height={450}
+                          className='w-full h-full object-cover'
+                        />
+                      </div>
+                    </div>
+                    <div className='flex items-center justify-between bg-gray-800 p-4 rounded-b-lg'>
+                      <p>{post.caption}</p>
+                      <div className='relative inline-block'>
+                        <motion.div
+                          whileTap={{ scale: 0.8 }}
+                          onClick={() => handleLikeClick(post.token_id)}
+                          style={{ cursor: 'pointer' }}
+                          aria-pressed={post.liked}
+                          aria-label={post.liked ? 'Unlike' : 'Like'}
+                          className='flex items-center bg-gray-800 border border-gray-400 text-white rounded-full py-1 px-2 shadow-lg'
+                        >
+                          {post.liked ? (
+                            <FaStar
+                              size={16}
+                              className='mr-1'
+                              color='#fff4d1'
+                            />
+                          ) : (
+                            <FaRegStar
+                              size={16}
+                              className='mr-1'
+                              color='#fff4d1'
+                            />
+                          )}
+                          <span className='text-sm font-bold'>
+                            {post.liked_count}
+                          </span>
+                        </motion.div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
 
             {/* Drawer */}
             <Drawer isOpen={selectedPost !== null} onClose={closeDrawer}>

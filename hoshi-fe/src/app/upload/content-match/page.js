@@ -33,6 +33,7 @@ export default function ContentMatchPage() {
   const { primaryWallet } = useDynamicContext();
   const [userHandle, setUserHandle] = useState('');
   const [userIcon, setUserIcon] = useState('');
+  const [parentTokenId, setParenTokenId] = useState(null);
 
   const pinata = new PinataSDK({
     pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT,
@@ -98,46 +99,49 @@ export default function ContentMatchPage() {
   };
 
   async function searchAPI(text, file, component) {
-    return {
-      // file: 'data/images/image_20.png',
-      file: '../db/media/gojo.png',
-      parent_type: 'media',
-      score: 0.6549215912818909,
-      edited_media:
-        'iVBORw0KGgoAAAANSUhEUgAAAs0AAAOYCAIAAAChGVkmAAEAAE…6yafJYw36WG9bBKwIAPwv2snLcd0N/ZkAAAAASUVORK5CYII=',
-      parent_img:
-        'iVBORw0KGgoAAAANSUhEUgAAA/kAAAdZCAYAAACgFtrxAAEAAE…8Y2Njg1dffbWbhroL5/8PANTN0wzDeskAAAAASUVORK5CYII=',
-      token_id: 5,
-    };
+    // return {
+    //   // file: 'data/images/image_20.png',
+    //   file: '../db/media/gojo.png',
+    //   parent_type: 'media',
+    //   score: 0.6549215912818909,
+    //   edited_media:
+    //     'iVBORw0KGgoAAAANSUhEUgAAAs0AAAOYCAIAAAChGVkmAAEAAE…6yafJYw36WG9bBKwIAPwv2snLcd0N/ZkAAAAASUVORK5CYII=',
+    //   parent_img:
+    //     'iVBORw0KGgoAAAANSUhEUgAAA/kAAAdZCAYAAACgFtrxAAEAAE…8Y2Njg1dffbWbhroL5/8PANTN0wzDeskAAAAASUVORK5CYII=',
+    //   token_id: 5,
+    // };
 
     // return {
-    // const formData = new FormData();
+    const formData = new FormData();
 
-    // formData.append('text', text);
-    // formData.append('component', component);
-    // formData.append('file', file);
+    formData.append('text', text);
+    formData.append('component', component);
+    formData.append('file', file);
 
-    // try {
-    //   const response = await fetch(
-    //     'https://7bdb-2607-fea8-75e-c700-84a1-5c17-c718-3d0.ngrok-free.app/search',
-    //     {
-    //       method: 'POST',
-    //       body: formData,
-    //     }
-    //   );
+    try {
+      const response = await fetch(
+        'https://e3c4-104-244-25-79.ngrok-free.app/search',
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'ngrok-skip-browser-warning': '69420',
+          },
+        }
+      );
 
-    //   if (!response.ok) {
-    //     const errorData = await response.json();
-    //     console.error('Error Response:', errorData);
-    //     throw new Error(`HTTP error! status: ${response.status}`);
-    //   }
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error Response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    //   const data = await response.json();
-    //   console.log('Success:', data);
-    //   return data;
-    // } catch (error) {
-    //   console.error('Error:', error);
-    // }
+      const data = await response.json();
+      console.log('Success:', data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+    }
   }
 
   useEffect(() => {
@@ -152,6 +156,7 @@ export default function ContentMatchPage() {
         // get back parent and similarity score
         setEditedImage(res.edited_media);
         setParentImage(res.parent_img);
+        setParenTokenId(res.token_id);
 
         const post = Posts.find((post) => post.token_id === res.token_id);
         console.log(post);
@@ -238,14 +243,22 @@ export default function ContentMatchPage() {
     try {
       const [address] = await walletClient.getAddresses();
 
-      const tokenId = await writeContract(walletClient, {
+      const tx = await writeContract(walletClient, {
         address: HOSHINFT_CONTRACT_ADDRESS,
         abi: HOSHINFT_ABI,
         functionName: 'mintNFT',
         args: [address, parentTokenIds, similarityScoresInput, IPFSTokenURI],
         chain: sepolia,
       });
-      console.log('tokenId: ', tokenId);
+      console.log('Subscription transaction sent:', tx);
+
+      const tokenId = await readContract(walletClient, {
+        address: HOSHINFT_CONTRACT_ADDRESS,
+        abi: HOSHINFT_ABI,
+        functionName: 'nextTokenId',
+        chain: sepolia,
+      });
+      console.log('Token ID:', tokenId);
 
       return tokenId;
     } catch (error) {
@@ -292,7 +305,7 @@ export default function ContentMatchPage() {
     console.log('POSTS');
     try {
       const response = await fetch(
-        'https://e3c4-104-244-25-79.ngrok-free.app/posts/',
+        'https://e3c4-104-244-25-79.ngrok-free.app/posts',
         {
           method: 'GET',
           headers: {
@@ -317,37 +330,45 @@ export default function ContentMatchPage() {
   }
 
   const handlePost = async () => {
-    const posts = await getPosts();
-    console.log(posts);
+    console.log('isDerivative:' + isDerivative);
+
+    let parents = [];
+    let similarityScores = [];
+
     // const parentTokenID = 1;
-    // const walletClient = await primaryWallet.getWalletClient();
-    // // upload upload.file to ipfs via pinata
-    // const IPFSTokenURI = await addDataToIPFS();
+    const walletClient = await primaryWallet.getWalletClient();
+    // upload upload.file to ipfs via pinata
+    const IPFSTokenURI = await addDataToIPFS();
 
-    // // mint NFT
-    // // 1. get parentTokenIds
-    // const parents = await getParentTokenIds(walletClient, parentTokenID);
-    // parents.unshift(parentTokenID);
+    if (isDerivative) {
+      parents = await getParentTokenIds(walletClient, parentTokenId);
 
-    // // 2. get similarityScoresInput
-    // const similarityScores = await getSimilarityScores(
-    //   walletClient,
-    //   parentTokenID
-    // );
-    // similarityScores.unshift(70);
+      // 2. get similarityScoresInput
+      similarityScores = await getSimilarityScores(walletClient, parentTokenId);
 
-    // const tokenId = await mintNFT(
-    //   walletClient,
-    //   parents,
-    //   similarityScores,
-    //   IPFSTokenURI
-    // );
-    // console.log(tokenId);
+      parents.unshift(parentTokenId);
+      similarityScores.unshift(70);
+    }
+    // mint NFT
+    // 1. get parentTokenIds
 
-    const tokenId = 1;
-    await uploadAPI(uploadData.content, uploadData.file, tokenId, userHandle);
+    const tokenId = await mintNFT(
+      walletClient,
+      parents,
+      similarityScores,
+      IPFSTokenURI
+    );
+    console.log(tokenId);
 
-    // router.push('/');
+    // const tokenId = 1;
+    await uploadAPI(
+      uploadData.content,
+      uploadData.file,
+      parseInt(tokenId, 10),
+      userHandle
+    );
+
+    router.push('/');
   };
 
   return (
@@ -375,13 +396,21 @@ export default function ContentMatchPage() {
               {uploadData.file && (
                 <div className='relative rounded-t-lg overflow-hidden'>
                   <div className='aspect-w-16 aspect-h-9'>
-                    <Image
-                      src={URL.createObjectURL(uploadData.file)}
-                      alt='Uploaded preview'
-                      width={800}
-                      height={450}
-                      className='w-full h-full object-cover'
-                    />
+                    {uploadData.file.type.startsWith('video/') ? (
+                      <video
+                        src={URL.createObjectURL(uploadData.file)}
+                        controls
+                        className='object-cover h-auto mx-auto'
+                      />
+                    ) : (
+                      <Image
+                        src={URL.createObjectURL(uploadData.file)}
+                        alt='Uploaded preview'
+                        width={800}
+                        height={450}
+                        className='object-cover h-auto mx-auto'
+                      />
+                    )}
                   </div>
                 </div>
               )}
@@ -424,13 +453,21 @@ export default function ContentMatchPage() {
                 {uploadData.file && (
                   <div className='w-1/2 relative overflow-hidden rounded-l-lg'>
                     <div className='aspect-w-16 aspect-h-9'>
-                      <Image
-                        src={URL.createObjectURL(uploadData.file)}
-                        alt='Uploaded preview'
-                        width={400}
-                        height={225}
-                        className='w-full h-full object-cover'
-                      />
+                      {uploadData.file.type.startsWith('video/') ? (
+                        <video
+                          src={URL.createObjectURL(uploadData.file)}
+                          controls
+                          className='object-cover h-auto mx-auto'
+                        />
+                      ) : (
+                        <Image
+                          src={URL.createObjectURL(uploadData.file)}
+                          alt='Uploaded preview'
+                          width={400}
+                          height={225}
+                          className='object-cover h-auto mx-auto'
+                        />
+                      )}
                     </div>
                   </div>
                 )}
@@ -465,7 +502,7 @@ export default function ContentMatchPage() {
               <div className='flex flex-row gap-2'>
                 {editedImage && (
                   <div className='w-1/2 relative overflow-hidden'>
-                    <div className='text-md'>Edited Image</div>
+                    <div className='text-md'>Edited Content</div>
                     <div className='aspect-w-16 aspect-h-9'>
                       {/* <Image
                         src={URL.createObjectURL(uploadData.file)}
@@ -474,11 +511,24 @@ export default function ContentMatchPage() {
                         height={225}
                         className='w-full h-full object-cover rounded-lg'
                       /> */}
-                      <img
+                      {uploadData.file.type.startsWith('video/') ? (
+                        <video
+                          src={`data:image/png;base64,${editedImage}`}
+                          controls
+                          className='object-cover h-auto mx-auto'
+                        />
+                      ) : (
+                        <img
+                          src={`data:image/png;base64,${editedImage}`}
+                          alt='Edited Image'
+                          style={{ width: '400px', height: '225px' }}
+                        />
+                      )}
+                      {/* <img
                         src={`data:image/png;base64,${editedImage}`}
                         alt='Edited Image'
                         style={{ width: '400px', height: '225px' }}
-                      />
+                      /> */}
                     </div>
                   </div>
                 )}
@@ -493,11 +543,19 @@ export default function ContentMatchPage() {
                         height={225}
                         className='w-full h-full object-cover rounded-lg'
                       /> */}
-                      <img
-                        src={`data:image/png;base64,${parentImage}`}
-                        alt='Parent Image'
-                        style={{ width: '400px', height: '225px' }}
-                      />
+                      {uploadData.file.type.startsWith('video/') ? (
+                        <video
+                          src={`data:image/png;base64,${parentImage}`}
+                          controls
+                          className='object-cover h-auto mx-auto'
+                        />
+                      ) : (
+                        <img
+                          src={`data:image/png;base64,${parentImage}`}
+                          alt='Edited Image'
+                          style={{ width: '400px', height: '225px' }}
+                        />
+                      )}
                       <div className='absolute translate-y-1/4 bottom-0 right-2 flex items-center bg-gray-700 rounded-full py-1 px-2 shadow-md'>
                         <div className='w-6 h-6 rounded-full overflow-hidden bg-purple-600 flex items-center justify-center mr-2'>
                           <Image
@@ -589,13 +647,21 @@ export default function ContentMatchPage() {
                   {uploadData.file && (
                     <div className='w-1/2 relative overflow-hidden rounded-l-lg'>
                       <div className='aspect-w-16 aspect-h-9'>
-                        <Image
-                          src={URL.createObjectURL(uploadData.file)}
-                          alt='Uploaded preview'
-                          width={400}
-                          height={225}
-                          className='w-full h-full object-cover'
-                        />
+                        {uploadData.file.type.startsWith('video/') ? (
+                          <video
+                            src={URL.createObjectURL(uploadData.file)}
+                            controls
+                            className='object-cover h-auto mx-auto'
+                          />
+                        ) : (
+                          <Image
+                            src={URL.createObjectURL(uploadData.file)}
+                            alt='Uploaded preview'
+                            width={400}
+                            height={225}
+                            className='object-cover h-auto mx-auto'
+                          />
+                        )}
                       </div>
                     </div>
                   )}
@@ -623,7 +689,7 @@ export default function ContentMatchPage() {
 
               <button
                 className='bg-purple-600 hover:bg-purple-700 text-white px-4 py-4 rounded-lg font-semibold text-sm transition transform hover:scale-105 duration-300 mt-4'
-                onClick={() => router.push('/')}
+                onClick={handlePost}
               >
                 Return
               </button>
