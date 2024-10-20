@@ -21,9 +21,13 @@ import {
   HOSHITOKEN_ABI,
   HOSHITOKEN_CONTRACT_ADDRESS,
 } from '../../contracts/hoshitoken/hoshitoken';
-import { sepolia } from 'viem/chains';
+import { skaleCalypsoTestnet } from 'viem/chains';
 import hoshitoken from './media/logo/token-icon.png';
 import { formatUnits } from 'viem';
+import {
+  SKALE_ETH_ABI,
+  SKALE_ETH_CONTRACT_ADDRESS,
+} from '../../contracts/skaleETH/skaleETH';
 
 export default function Home() {
   const { user } = useDynamicContext();
@@ -81,7 +85,7 @@ export default function Home() {
           abi: HOSHITOKEN_ABI,
           functionName: 'balanceOf',
           args: [address],
-          chain: sepolia,
+          chain: skaleCalypsoTestnet,
         });
         console.log(hoshitokens);
         setTokens(formatUnits(hoshitokens, 18));
@@ -164,6 +168,27 @@ export default function Home() {
     );
   };
 
+  const handleApprove = async () => {
+    try {
+      const walletClient = await primaryWallet.getWalletClient();
+      const [address] = await walletClient.getAddresses();
+
+      const tx = await writeContract(walletClient, {
+        address: SKALE_ETH_CONTRACT_ADDRESS,
+        abi: SKALE_ETH_ABI,
+        functionName: 'approve',
+        args: [address, 10000000000000000000],
+        chain: sepolia,
+      });
+      console.log('Subscription transaction sent:', tx);
+
+      const receipt = await tx.wait();
+      console.log('Transaction confirmed:', receipt);
+    } catch (error) {
+      console.error('Error interacting with the contract:', error);
+    }
+  };
+
   return (
     <div
       className={`relative min-h-screen w-screen bg-black ${
@@ -189,7 +214,10 @@ export default function Home() {
           <header className='z-50 fixed top-0 inset-x-0 h-16 flex justify-between items-center p-4 border-b border-gray-700 bg-[#1C1C1E]'>
             {/* Left: Dollar Sign Button */}
             <div className='w-24 flex items-center justify-start'>
-              <button className='border border-gray-700 rounded-lg p-2 transition-colors duration-200 hover:bg-gray-700 hover:border-gray-600'>
+              <button
+                className='border border-gray-700 rounded-lg p-2 transition-colors duration-200 hover:bg-gray-700 hover:border-gray-600'
+                onClick={handleApprove}
+              >
                 Approve
               </button>
             </div>
