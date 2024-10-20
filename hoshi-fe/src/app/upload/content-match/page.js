@@ -21,6 +21,7 @@ import { sepolia } from 'viem/chains';
 import { readContract, writeContract } from 'viem/actions';
 import Posts from '../../../../public/db/posts.json';
 import Users from '../../../../public/db/users.json';
+import limrik from '../../../../public/db/user_icons/limrik.jpeg';
 
 export default function ContentMatchPage() {
   const router = useRouter();
