@@ -28,7 +28,13 @@ import {
   IPAssetRegistry_ABI,
   IPASSETREGISTRY_CONTRACT_ADDRESS,
 } from "../../../../contracts/IPAssetRegistery/hoshitoken/IPRegistry";
-import limrik from '../../../../public/db/user_icons/limrik.jpeg';
+import limrik from "../../../../public/db/user_icons/limrik.jpeg";
+import { createPublicClient } from "viem";
+
+export const publicClient = createPublicClient({
+  chain: iliad,
+  transport: http(),
+});
 
 export default function ContentMatchPage() {
   const router = useRouter();
@@ -373,6 +379,14 @@ export default function ContentMatchPage() {
     try {
       const [address] = await walletClient.getAddresses();
 
+      const tokenId = await readContract(walletClient, {
+        address: HOSHINFT_CONTRACT_ADDRESS,
+        abi: HOSHINFT_ABI,
+        functionName: "nextTokenId",
+        chain: iliad,
+      });
+      console.log("Token ID:", tokenId);
+
       const tx = await writeContract(walletClient, {
         address: HOSHINFT_CONTRACT_ADDRESS,
         abi: HOSHINFT_ABI,
@@ -382,13 +396,8 @@ export default function ContentMatchPage() {
       });
       console.log("Subscription transaction sent:", tx);
 
-      const tokenId = await readContract(walletClient, {
-        address: HOSHINFT_CONTRACT_ADDRESS,
-        abi: HOSHINFT_ABI,
-        functionName: "nextTokenId",
-        chain: iliad,
-      });
-      console.log("Token ID:", tokenId);
+      const receipt = await publicClient.waitForTransactionReceipt(tx);
+      console.log("Transaction confirmed:", receipt);
 
       // now i want to register the newly created nft on IPRegistery
       const client = await createStoryClient();
