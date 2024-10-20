@@ -7,7 +7,7 @@ import { X, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { sepolia } from 'viem/chains';
+import { skaleCalypsoTestnet } from 'viem/chains';
 import { readContract, writeContract } from 'viem/actions';
 import { formatUnits } from 'viem';
 import {
@@ -50,7 +50,7 @@ export default function CreatorEarningsDashboard() {
           abi: HOSHITOKEN_ABI,
           functionName: 'unwrapTokens',
           args: [100000 * 10 ** 18],
-          chain: sepolia,
+          chain: skaleCalypsoTestnet,
         });
 
         console.log('Subscription transaction sent:', tx);
@@ -84,7 +84,7 @@ export default function CreatorEarningsDashboard() {
           abi: HOSHITOKEN_ABI,
           functionName: 'balanceOf',
           args: [address],
-          chain: sepolia,
+          chain: skaleCalypsoTestnet,
         });
 
         setEarningsValue(formatUnits(hoshitokens, 18));
@@ -94,7 +94,7 @@ export default function CreatorEarningsDashboard() {
           abi: HOSHITOKEN_ABI,
           functionName: 'subscribedCreators',
           args: [address],
-          chain: sepolia,
+          chain: skaleCalypsoTestnet,
         });
 
         setIsSubscribed(subscribedCreator);
@@ -112,7 +112,7 @@ export default function CreatorEarningsDashboard() {
         address: HOSHITOKEN_CONTRACT_ADDRESS,
         abi: HOSHITOKEN_ABI,
         functionName: 'subscriptionFeeETH',
-        chain: sepolia,
+        chain: skaleCalypsoTestnet,
       });
 
       console.log('Subscription Fee (in Wei):', subscriptionFee.toString());
@@ -121,7 +121,7 @@ export default function CreatorEarningsDashboard() {
         address: HOSHITOKEN_CONTRACT_ADDRESS,
         abi: HOSHITOKEN_ABI,
         functionName: 'subscribeCreator',
-        chain: sepolia,
+        chain: skaleCalypsoTestnet,
         account: address,
         value: subscriptionFee,
       });
