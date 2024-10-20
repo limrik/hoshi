@@ -92,7 +92,7 @@ export default function Home() {
           abi: HOSHITOKEN_ABI,
           functionName: "balanceOf",
           args: [address],
-          chain: sepolia,
+          chain: iliad,
         });
         console.log(hoshitokens);
         setTokens(formatUnits(hoshitokens, 18));
