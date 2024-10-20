@@ -262,6 +262,12 @@ export default function ContentMatchPage() {
       });
       console.log("Token ID:", tokenId);
 
+      // now i want to register the newly created nft on IPRegistery
+
+      // if it is an original work, register it as a non commercial IP with the register workflow
+
+      // if it is a derivative, get the parent
+
       return tokenId;
     } catch (error) {
       console.error("Error interacting with the contract:", error);
