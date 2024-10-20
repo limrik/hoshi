@@ -2,7 +2,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useVideo } from './providers/VideoProvider';
 import hoshiLogoLight from './media/logo/hoshi-logo-light.png';
-import { Ellipsis, Flame, MessageCircle, Network } from 'lucide-react';
+import {
+  DollarSign,
+  Ellipsis,
+  Flame,
+  MessageCircle,
+  Network,
+} from 'lucide-react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaRegStar, FaStar } from 'react-icons/fa';
@@ -180,15 +186,27 @@ export default function Home() {
       )}
       {!isFirstVisit && user && (
         <div className='relative min-h-screen flex flex-col bg-[#1C1C1E] text-white'>
-          <header className='z-50 fixed top-0 inset-x-0 h-16 flex justify-center items-center p-4 border-b border-gray-700 bg-[#1C1C1E]'>
-            <Image
-              src={hoshiLogoLight}
-              alt='Hoshi logo'
-              width={100}
-              height={140}
-              unoptimized
-            />
-            <div className='absolute right-8 flex flex-row gap-1'>
+          <header className='z-50 fixed top-0 inset-x-0 h-16 flex justify-between items-center p-4 border-b border-gray-700 bg-[#1C1C1E]'>
+            {/* Left: Dollar Sign Button */}
+            <div className='w-24 flex items-center justify-start'>
+              <button className='border border-gray-700 rounded-lg p-2 transition-colors duration-200 hover:bg-gray-700 hover:border-gray-600'>
+                Approve
+              </button>
+            </div>
+
+            {/* Center: Logo */}
+            <div className='absolute left-1/2 transform -translate-x-1/2'>
+              <Image
+                src={hoshiLogoLight}
+                alt='Hoshi logo'
+                width={100}
+                height={140}
+                unoptimized
+              />
+            </div>
+
+            {/* Right: Token Info */}
+            <div className='w-24 flex items-center justify-end gap-1'>
               <div className='text-[#fff4d1]'>{tokens}</div>
               <Image
                 src={hoshitoken}
@@ -198,6 +216,7 @@ export default function Home() {
               />
             </div>
           </header>
+
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
             {posts &&
               posts.map((post, id) => {

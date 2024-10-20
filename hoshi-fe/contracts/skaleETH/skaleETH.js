@@ -1,22 +1,12 @@
-export const HOSHITOKEN_CONTRACT_ADDRESS =
-  '0xc39f227A22823517e1058CFb254c6937eD162012';
+export const SKALE_ETH_CONTRACT_ADDRESS =
+  '0xbc1f9A4a1C946a1cF5FB2A7922327469B3E9D3f0';
 
-export const HOSHITOKEN_ABI = [
+export const SKALE_ETH_ABI = [
   {
     inputs: [
       {
         internalType: 'address',
         name: 'initialOwner',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_HoshiNFTAddress',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'ethAddress',
         type: 'address',
       },
     ],
@@ -201,32 +191,6 @@ export const HOSHITOKEN_ABI = [
     type: 'event',
   },
   {
-    inputs: [],
-    name: 'HoshiNFTContract',
-    outputs: [
-      {
-        internalType: 'contract HoshiNFT',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'TOKENS_PER_ETH',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'address',
@@ -297,29 +261,11 @@ export const HOSHITOKEN_ABI = [
     inputs: [
       {
         internalType: 'uint256',
-        name: 'value',
+        name: 'amount',
         type: 'uint256',
       },
     ],
     name: 'burn',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'value',
-        type: 'uint256',
-      },
-    ],
-    name: 'burnFrom',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -340,101 +286,6 @@ export const HOSHITOKEN_ABI = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: 'transferAmount',
-        type: 'uint256',
-      },
-    ],
-    name: 'depositETH',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'depositSfuel',
-    outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'newUser',
-        type: 'address',
-      },
-    ],
-    name: 'distributeFualNewUser',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address[]',
-        name: 'recipients',
-        type: 'address[]',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalAmount',
-        type: 'uint256',
-      },
-    ],
-    name: 'distributeTokensEqually',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getContractETHBalance',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'tokenId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalAmount',
-        type: 'uint256',
-      },
-    ],
-    name: 'likePost',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'liquidityPool',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
         internalType: 'address',
         name: 'to',
         type: 'address',
@@ -445,7 +296,7 @@ export const HOSHITOKEN_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'mintTokens',
+    name: 'mint',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -458,19 +309,6 @@ export const HOSHITOKEN_ABI = [
         internalType: 'string',
         name: '',
         type: 'string',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'newUserFuelAmount',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -494,58 +332,6 @@ export const HOSHITOKEN_ABI = [
     name: 'renounceOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'newFee',
-        type: 'uint256',
-      },
-    ],
-    name: 'setSubscriptionFee',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'subscribeCreator',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'subscribedCreators',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'subscriptionFeeETH',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -578,12 +364,12 @@ export const HOSHITOKEN_ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'recipient',
+        name: 'to',
         type: 'address',
       },
       {
         internalType: 'uint256',
-        name: 'amount',
+        name: 'value',
         type: 'uint256',
       },
     ],
@@ -639,22 +425,5 @@ export const HOSHITOKEN_ABI = [
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'tokenAmount',
-        type: 'uint256',
-      },
-    ],
-    name: 'unwrapTokens',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    stateMutability: 'payable',
-    type: 'receive',
   },
 ];
