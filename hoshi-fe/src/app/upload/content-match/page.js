@@ -37,10 +37,11 @@ export default function ContentMatchPage() {
   const [editedImage, setEditedImage] = useState("");
   const [parentImage, setParentImage] = useState("");
   const [similarityScore, setSimilarityScore] = useState();
-  const { primaryWallet } = useDynamicContext();
+  const { primaryWallet, user } = useDynamicContext();
   const [userHandle, setUserHandle] = useState("");
   const [userIcon, setUserIcon] = useState("");
   const [parentTokenId, setParenTokenId] = useState(null);
+  const [Posts, setPosts] = useState();
 
   const pinata = new PinataSDK({
     pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT,
@@ -51,7 +52,6 @@ export default function ContentMatchPage() {
     id,
     size,
     text,
-    date,
     authorName,
     authorIcon,
     media = null,
@@ -60,7 +60,6 @@ export default function ContentMatchPage() {
     id,
     size,
     text,
-    date,
     authorName,
     authorIcon,
     media,
@@ -70,11 +69,10 @@ export default function ContentMatchPage() {
   const data = createNode(
     "root",
     0.5,
-    "This is the first post but I think it is a good one. Somehow or rather ",
-    "2023-06-01",
-    "John Doe",
-    hakiIcon,
-    hakiIcon,
+    "this is a new post",
+    "limrik",
+    limrik,
+    limrik,
     []
   );
 
@@ -151,50 +149,103 @@ export default function ContentMatchPage() {
     }
   }
 
+  async function getPosts() {
+    try {
+      const response = await fetch(
+        "https://e3c4-104-244-25-79.ngrok-free.app/posts/",
+        {
+          method: "GET",
+          headers: {
+            "ngrok-skip-browser-warning": "69420",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error Response:", errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Success:", data);
+      return data;
+    } catch (error) {
+      console.error("Error:", error);
+      return error;
+    }
+  }
+
   useEffect(() => {
-    async function performSearch() {
+    // Define a single async function to handle both fetching posts and performing the search
+    const fetchAndSearch = async () => {
       setStage("checking");
       try {
+        // Fetch posts first
+        const fetchedPosts = await getPosts();
+        setPosts(fetchedPosts); // Update the posts state
+
+        // Perform the search after posts are fetched
+        console.log(uploadData);
         const res = await searchAPI(
           uploadData.content,
           uploadData.file,
           uploadData.component
         );
 
-        // get back parent and similarity score
+        // Update state with search results
         setEditedImage(res.edited_media);
         setParentImage(res.parent_img);
         setParenTokenId(res.token_id);
 
-        const post = Posts.find((post) => post.token_id === res.token_id);
-        console.log(post);
-        const user = Users.find(
-          (user) => user.hoshiHandle === post.user_handle
-        );
-        // Now you have the correct user based on the post's user_handle
-        setUserHandle(user.hoshiHandle);
+        let user2 = user;
 
-        setUserIcon(`/media/${user.imagePath}`);
+        if (res.score > 0.2) {
+          setIsDerivative(true);
+          console.log(fetchedPosts); // Use fetchedPosts instead of Posts from state
+
+          // Find the relevant post using fetchedPosts
+          const post = fetchedPosts.find(
+            (post) => post.token_id === res.token_id
+          );
+          console.log(post);
+
+          // Find the user associated with the post
+          user2 = Users.find((user) => user.hoshiHandle === post.user_handle);
+          console.log(user2);
+
+          // Update user handle based on the post's user_handle
+          setUserHandle(user2.hoshiHandle);
+        } else {
+          setUserHandle(user.metadata.Hoshihandle);
+        }
+
+        setUserIcon(`/media/${user2.imagePath}`);
+
+        // Update uploadData with the new information
         setUploadData((prevData) => ({
           ...prevData,
           parentImage: res.parent_img,
           editedImage: res.edited_media,
-          userHandle: Posts[res.token_id].user_handle,
-          userIcon: `/media/${Users[Posts[res.token_id].user_handle]}`,
+          userHandle:
+            res.score > 0.2
+              ? fetchedPosts.find((post) => post.token_id === res.token_id)
+                  ?.user_handle
+              : user.metadata.Hoshihandle,
+          userIcon: `/media/${user2.imagePath}`,
           similarityScore: parseFloat((res.score * 100).toFixed(2)),
         }));
-        if (res.score > 0.2) {
-          setIsDerivative(true);
-        }
+
         setSimilarityScore(parseFloat((res.score * 100).toFixed(2)));
         setStage("done");
       } catch (error) {
         console.error("Error during searchAPI:", error);
         setStage("error");
       }
-    }
+    };
 
-    performSearch();
+    // Call the combined async function
+    fetchAndSearch();
   }, [uploadData.content, uploadData.file, uploadData.component]);
 
   async function addDataToIPFS() {
@@ -711,15 +762,15 @@ export default function ContentMatchPage() {
                 to the hoshi ecosystem!
               </h2>
 
-              <motion.div
-                key="horizontal"
-                className="relative flex flex-col h-[30vh] justify-between"
+              {/* <motion.div
+                key='horizontal'
+                className='relative flex flex-col h-[30vh] justify-between'
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
               >
                 <Canvas
-                  style={{ background: "#000" }}
+                  style={{ background: '#000' }}
                   camera={{ position: [0, 0, 15], fov: 60 }}
                 >
                   <ambientLight intensity={0.8} />
@@ -728,7 +779,7 @@ export default function ContentMatchPage() {
                   <Graph data={data} />
                   <CameraController />
                 </Canvas>
-              </motion.div>
+              </motion.div> */}
 
               <motion.div
                 key="horizontal"
@@ -774,7 +825,9 @@ export default function ContentMatchPage() {
                             className="object-cover"
                           />
                         </div>
-                        <span className="text-xs text-gray-300">@user</span>
+                        <span className="text-xs text-gray-300">
+                          {user.metadata.Hoshihandle}
+                        </span>
                       </div>
                     </div>
                   )}
