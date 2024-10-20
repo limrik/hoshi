@@ -1,5 +1,5 @@
 import cv2
-import timm
+import subprocess
 import torch
 import torch.nn.functional as F
 import lancedb
@@ -122,7 +122,6 @@ class ImageDB:
         k = 20
         results_df = self.table.search(query_embedding.cpu().tolist()).limit(k).to_pandas()
         k = len(results_df)
-        print(results_df)
         result_img_item = results_df.iloc[0]
         result_image_src = result_img_item["image_src"]
         result_token_id = result_img_item["token_id"]
@@ -145,44 +144,20 @@ class ImageDB:
         overlay = cv2.addWeighted(cv2.cvtColor(np.array(image_query), cv2.COLOR_RGB2BGR), 0.2, heatmap, 1, 0)
         edited_img = Image.fromarray(cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB))
 
-        # irrelevant_score is the average of the 4 corners of the heatmap
-        top_left_patch = heatmap_scores[0:4, 0:4]
-        top_right_patch = heatmap_scores[0:4, -4:]
-        bottom_left_patch = heatmap_scores[-4:, 0:4]
-        bottom_right_patch = heatmap_scores[-4:, -4:]
-
-        tl_mean = np.mean(top_left_patch)
-        tr_mean = np.mean(top_right_patch)
-        bl_mean = np.mean(bottom_left_patch)
-        br_mean = np.mean(bottom_right_patch)
-
-        # Compute the irrelevant score as the average of the corner patch means
-        irrelevant_score = (tl_mean + tr_mean + bl_mean + br_mean) / 4
-        irrelevant_score = min(irrelevant_score, cosine_scores.min()).item()
-        score_from_heatmap = heatmap_scores.max()
-        # score_from_heatmap = (heatmap_scores.max() - irrelevant_score) / (1.0 - irrelevant_score)
-        # print(heatmap_scores_adj.min(), heatmap_scores_adj.flatten())
-        print("Heatmap score", heatmap_scores.max(), "Irrelevant score", irrelevant_score)
+        irrelevant_score = 0.6
         whole_score = whole_score - irrelevant_score
         whole_score = whole_score / (1.0 - irrelevant_score)
         whole_score = max(whole_score, 0.0)
         print("normalized score", whole_score)
         structural_score = compare_images(image_query, Image.open(result_image_src))  # TODO what if result_image_src is a video?
         print("structural score", structural_score)
-        print("Score from heatmap", score_from_heatmap)
-        # heatmap_scores = heatmap_scores.flatten()
-        # score_from_heatmap = sum(heatmap_scores) / len(heatmap_scores)
-        # print(score_from_heatmap, whole_score)
-        score = whole_score * 0.6 + structural_score * 0.3 + score_from_heatmap * 0.1
-        # score = 0.5 * whole_score + 0.5 * score_from_heatmap
+
+        score = whole_score * 0.7 + structural_score * 0.3
+
         score = max(score, 0.0)
         score = min(score, 1.0)
 
-        # thresh = 0.38
-        # score = (score - thresh) / (1 - thresh)
-
         return {"image_src": result_image_src, "edited_image": edited_img, "score": score, "token_id": result_token_id}
-        # return {"image_src": result_image_src, "score": score}
 
     def search_video(self, video_path: str, fps_to_use: float, output_path: str = "output_video.mp4") -> dict:
         cap = cv2.VideoCapture(video_path)
@@ -237,7 +212,7 @@ class ImageDB:
             heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_HOT)
 
             # Increase contrast
-            heatmap = cv2.convertScaleAbs(heatmap, alpha=2, beta=0)
+            heatmap = cv2.convertScaleAbs(heatmap, alpha=2.5, beta=0)
             heatmaps.append(heatmap)
 
             # Normalize and get max score for each heatmap
@@ -265,13 +240,12 @@ class ImageDB:
                 current_heatmap = heatmaps[heatmap_index]
                 # current_heatmap = cv2.multiply(current_heatmap, np.array([2.0]))
                 heatmap_index += 1
-            overlay = cv2.addWeighted(frame, 0.15, current_heatmap, 0.9, 0)
+            overlay = cv2.addWeighted(frame, 0.35, current_heatmap, 0.9, 0)
 
             out.write(overlay)
             frame_count += 1
         cap.release()
         out.release()
-
         return {"image_src": most_common_result, "score": final_score, "output_video_path": output_path, "token_id": final_result_token_id}
 
     @torch.no_grad()
