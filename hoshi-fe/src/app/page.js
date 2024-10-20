@@ -12,6 +12,15 @@ import LoginPage from './components/LoginPage';
 import Posts from '../../../db/posts.json';
 import Users from '../../../db/users.json';
 import { writeContract } from 'viem/actions';
+import {
+  HOSHITOKEN_ABI,
+  HOSHITOKEN_CONTRACT_ADDRESS,
+} from '../../contracts/hoshitoken/hoshitoken';
+import { sepolia } from 'viem/chains';
+import {
+  HOSHINFT_ABI,
+  HOSHINFT_CONTRACT_ADDRESS,
+} from '../../contracts/hoshiNFT/hoshiNFT';
 
 export default function Home() {
   const { user } = useDynamicContext();
@@ -25,6 +34,7 @@ export default function Home() {
   const closeDrawer = () => setSelectedPost(null);
 
   const [posts, setPosts] = useState('');
+  const { primaryWallet } = useDynamicContext();
 
   async function getPosts() {
     console.log('POSTS');
@@ -58,29 +68,65 @@ export default function Home() {
     getPosts().then((data) => {
       setPosts(data);
     });
-    console.log(posts);
   }, []);
 
   const handleLikeClick = async (id) => {
     // interact with smart contract
-    console.log(id);
-    try {
-      const walletClient = await primaryWallet.getWalletClient();
+    // console.log(id);
+    const handleLike = async () => {
+      try {
+        const walletClient = await primaryWallet.getWalletClient();
 
-      const tx = await writeContract(walletClient, {
-        address: HOSHITOKEN_CONTRACT_ADDRESS,
-        abi: HOSHITOKEN_ABI,
-        functionName: 'likePost',
-        args: [id, 100 * 10 ** 18],
-        chain: sepolia,
-      });
-      console.log('Subscription transaction sent:', tx);
+        const tx = await writeContract(walletClient, {
+          address: HOSHITOKEN_CONTRACT_ADDRESS,
+          abi: HOSHITOKEN_ABI,
+          functionName: 'likePost',
+          args: [id, 100 * 10 ** 18],
+          chain: sepolia,
+        });
+        console.log('Subscription transaction sent:', tx);
 
-      const receipt = await tx.wait();
-      console.log('Transaction confirmed:', receipt);
-    } catch (error) {
-      console.error('Error interacting with the contract:', error);
-    }
+        const receipt = await tx.wait();
+        console.log('Transaction confirmed:', receipt);
+      } catch (error) {
+        console.error('Error interacting with the contract:', error);
+      }
+    };
+    handleLike();
+
+    // const handleLike = async () => {
+    //   try {
+    //     const walletClient = await primaryWallet.getWalletClient();
+
+    //     const tx = await writeContract(walletClient, {
+    //       address: HOSHINFT_CONTRACT_ADDRESS,
+    //       abi: HOSHINFT_ABI,
+    //       functionName: 'mintNFT',
+    //       args: [
+    //         '0xFa5530BE79c0dce48De0Da80a1A11Bf8465B99d9',
+    //         [],
+    //         [],
+    //         'https://tomato-occupational-carp-281.mypinata.cloud/ipfs/QmRZjD9NPqi153TEz8fpXfyiyt3YSBNEjWxqnJPHRy2Bmc',
+    //       ],
+    //       chain: sepolia,
+    //     });
+    //     console.log('Subscription transaction sent:', tx);
+
+    //     const receipt = await tx.wait();
+
+    //     const transferEvent = receipt.events.find(
+    //       (event) => event.event === 'NFTMinted'
+    //     );
+
+    //     // Extract the token ID (3rd argument in the Transfer event)
+    //     const tokenId = transferEvent.args[2].toNumber(); // Assuming tokenId is a uint256
+    //     console.log('Minted Token ID:', tokenId);
+    //     console.log('Transaction confirmed:', receipt);
+    //   } catch (error) {
+    //     console.error('Error interacting with the contract:', error);
+    //   }
+    // };
+    // handleLike();
 
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
@@ -88,7 +134,7 @@ export default function Home() {
           ? {
               ...post,
               liked: true,
-              likes_count: post.liked ? post.likes_count : post.likes_count + 1,
+              liked_count: post.liked ? post.liked_count : post.liked_count + 1,
             }
           : post
       )
