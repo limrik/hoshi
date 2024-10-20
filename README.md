@@ -1,1 +1,1 @@
-# hoshi
+# hoshi token and hoshi nft
