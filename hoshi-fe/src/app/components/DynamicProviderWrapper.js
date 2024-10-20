@@ -28,7 +28,7 @@ export default function DynamicProviderWrapper({ children }) {
     {
       blockExplorerUrls: ['https://testnet.storyscan.xyz'],
       chainId: 1513,
-      chainName: 'SKALE Calypso Hub Testnet',
+      chainName: 'Story Testnet',
       iconUrls: ['https://app.dynamic.xyz/assets/networks/eth.svg'],
       name: 'Story Testnet',
       nativeCurrency: {
