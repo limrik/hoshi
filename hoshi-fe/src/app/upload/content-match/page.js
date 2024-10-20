@@ -98,46 +98,49 @@ export default function ContentMatchPage() {
   };
 
   async function searchAPI(text, file, component) {
-    return {
-      // file: 'data/images/image_20.png',
-      file: '../db/media/gojo.png',
-      parent_type: 'media',
-      score: 0.6549215912818909,
-      edited_media:
-        'iVBORw0KGgoAAAANSUhEUgAAAs0AAAOYCAIAAAChGVkmAAEAAE…6yafJYw36WG9bBKwIAPwv2snLcd0N/ZkAAAAASUVORK5CYII=',
-      parent_img:
-        'iVBORw0KGgoAAAANSUhEUgAAA/kAAAdZCAYAAACgFtrxAAEAAE…8Y2Njg1dffbWbhroL5/8PANTN0wzDeskAAAAASUVORK5CYII=',
-      token_id: 5,
-    };
+    // return {
+    //   // file: 'data/images/image_20.png',
+    //   file: '../db/media/gojo.png',
+    //   parent_type: 'media',
+    //   score: 0.6549215912818909,
+    //   edited_media:
+    //     'iVBORw0KGgoAAAANSUhEUgAAAs0AAAOYCAIAAAChGVkmAAEAAE…6yafJYw36WG9bBKwIAPwv2snLcd0N/ZkAAAAASUVORK5CYII=',
+    //   parent_img:
+    //     'iVBORw0KGgoAAAANSUhEUgAAA/kAAAdZCAYAAACgFtrxAAEAAE…8Y2Njg1dffbWbhroL5/8PANTN0wzDeskAAAAASUVORK5CYII=',
+    //   token_id: 5,
+    // };
 
     // return {
-    // const formData = new FormData();
+    const formData = new FormData();
 
-    // formData.append('text', text);
-    // formData.append('component', component);
-    // formData.append('file', file);
+    formData.append('text', text);
+    formData.append('component', component);
+    formData.append('file', file);
 
-    // try {
-    //   const response = await fetch(
-    //     'https://7bdb-2607-fea8-75e-c700-84a1-5c17-c718-3d0.ngrok-free.app/search',
-    //     {
-    //       method: 'POST',
-    //       body: formData,
-    //     }
-    //   );
+    try {
+      const response = await fetch(
+        'https://e3c4-104-244-25-79.ngrok-free.app/search',
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'ngrok-skip-browser-warning': '69420',
+          },
+        }
+      );
 
-    //   if (!response.ok) {
-    //     const errorData = await response.json();
-    //     console.error('Error Response:', errorData);
-    //     throw new Error(`HTTP error! status: ${response.status}`);
-    //   }
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error Response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    //   const data = await response.json();
-    //   console.log('Success:', data);
-    //   return data;
-    // } catch (error) {
-    //   console.error('Error:', error);
-    // }
+      const data = await response.json();
+      console.log('Success:', data);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+    }
   }
 
   useEffect(() => {
@@ -292,7 +295,7 @@ export default function ContentMatchPage() {
     console.log('POSTS');
     try {
       const response = await fetch(
-        'https://e3c4-104-244-25-79.ngrok-free.app/posts/',
+        'https://e3c4-104-244-25-79.ngrok-free.app/posts',
         {
           method: 'GET',
           headers: {
@@ -316,38 +319,46 @@ export default function ContentMatchPage() {
     }
   }
 
-  const handlePost = async () => {
-    const posts = await getPosts();
-    console.log(posts);
-    // const parentTokenID = 1;
-    // const walletClient = await primaryWallet.getWalletClient();
-    // // upload upload.file to ipfs via pinata
-    // const IPFSTokenURI = await addDataToIPFS();
+  const handlePost = async (isDerivative) => {
+    console.log(isDerivative);
 
-    // // mint NFT
-    // // 1. get parentTokenIds
-    // const parents = await getParentTokenIds(walletClient, parentTokenID);
-    // parents.unshift(parentTokenID);
+    const parentTokenID = 1;
+    const walletClient = await primaryWallet.getWalletClient();
+    // upload upload.file to ipfs via pinata
+    const IPFSTokenURI = await addDataToIPFS();
 
-    // // 2. get similarityScoresInput
-    // const similarityScores = await getSimilarityScores(
-    //   walletClient,
-    //   parentTokenID
-    // );
-    // similarityScores.unshift(70);
+    // mint NFT
+    // 1. get parentTokenIds
+    const parents = await getParentTokenIds(walletClient, parentTokenID);
 
-    // const tokenId = await mintNFT(
-    //   walletClient,
-    //   parents,
-    //   similarityScores,
-    //   IPFSTokenURI
-    // );
-    // console.log(tokenId);
+    // 2. get similarityScoresInput
+    const similarityScores = await getSimilarityScores(
+      walletClient,
+      parentTokenID
+    );
 
-    const tokenId = 1;
-    await uploadAPI(uploadData.content, uploadData.file, tokenId, userHandle);
+    if (isDerivative) {
+      parents.unshift(parentTokenID);
+      similarityScores.unshift(70);
+    }
 
-    // router.push('/');
+    const tokenId = await mintNFT(
+      walletClient,
+      parents,
+      similarityScores,
+      IPFSTokenURI
+    );
+    console.log(tokenId);
+
+    // const tokenId = 1;
+    await uploadAPI(
+      uploadData.content,
+      uploadData.file,
+      parseInt(tokenId, 10),
+      userHandle
+    );
+
+    router.push('/');
   };
 
   return (
@@ -623,7 +634,7 @@ export default function ContentMatchPage() {
 
               <button
                 className='bg-purple-600 hover:bg-purple-700 text-white px-4 py-4 rounded-lg font-semibold text-sm transition transform hover:scale-105 duration-300 mt-4'
-                onClick={() => router.push('/')}
+                onClick={handlePost}
               >
                 Return
               </button>

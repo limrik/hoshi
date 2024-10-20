@@ -135,77 +135,82 @@ export default function Home() {
             </div>
           </header>
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
-            {posts.map((post, id) => {
-              console.log(JSON.stringify(post));
-              const updatedFpath = post.fpath.replace(
-                '../db/media',
-                '/db/media/'
-              );
-              console.log(updatedFpath);
-              const user = Users.find(
-                (user) => user.hoshiHandle === post.user_handle
-              );
-              const userAvatar = `/media/${user.imagePath}`;
+            {posts &&
+              posts.map((post, id) => {
+                console.log(JSON.stringify(post));
+                const updatedFpath = post.fpath.replace(
+                  '../db/media',
+                  '/db/media'
+                );
+                console.log(updatedFpath);
+                const user = Users.find(
+                  (user) => user.hoshiHandle === post.user_handle
+                );
+                const userAvatar = `/media/${user.imagePath}`;
 
-              return (
-                <div key={id} className='p-8'>
-                  <div className='rounded-t-lg bg-gray-800 text-white p-4 flex items-center gap-2'>
-                    <Image
-                      src={userAvatar}
-                      alt='User avatar'
-                      width={40}
-                      height={40}
-                      className='rounded-full'
-                      unoptimized
-                    />
-                    <div>{post.user_handle}</div>
-                    <button
-                      onClick={() => openDrawer(id)}
-                      className='ml-auto flex border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'
-                    >
-                      <Ellipsis size={20} color='#fff4d1' />
-                    </button>
-                  </div>
-                  <div className='relative overflow-hidden'>
-                    <div className='aspect-w-16 aspect-h-9'>
+                return (
+                  <div key={id} className='p-8'>
+                    <div className='rounded-t-lg bg-gray-800 text-white p-4 flex items-center gap-2'>
                       <Image
-                        src={updatedFpath}
-                        alt='Uploaded preview'
-                        width={800}
-                        height={450}
-                        className='w-full h-full object-cover'
+                        src={userAvatar}
+                        alt='User avatar'
+                        width={40}
+                        height={40}
+                        className='rounded-full'
+                        unoptimized
                       />
-                    </div>
-                  </div>
-                  <div className='flex items-center justify-between bg-gray-800 p-4 rounded-b-lg'>
-                    <p>{post.caption}</p>
-                    <div className='relative inline-block'>
-                      <motion.div
-                        whileTap={{ scale: 0.8 }}
-                        onClick={() => handleLikeClick(post.token_id)}
-                        style={{ cursor: 'pointer' }}
-                        aria-pressed={post.liked}
-                        aria-label={post.liked ? 'Unlike' : 'Like'}
-                        className='flex items-center bg-gray-800 border border-gray-400 text-white rounded-full py-1 px-2 shadow-lg'
+                      <div>{post.user_handle}</div>
+                      <button
+                        onClick={() => openDrawer(id)}
+                        className='ml-auto flex border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'
                       >
-                        {post.liked ? (
-                          <FaStar size={16} className='mr-1' color='#fff4d1' />
-                        ) : (
-                          <FaRegStar
-                            size={16}
-                            className='mr-1'
-                            color='#fff4d1'
-                          />
-                        )}
-                        <span className='text-sm font-bold'>
-                          {post.likes_count}
-                        </span>
-                      </motion.div>
+                        <Ellipsis size={20} color='#fff4d1' />
+                      </button>
+                    </div>
+                    <div className='relative overflow-hidden'>
+                      <div className='aspect-w-16 aspect-h-9'>
+                        <Image
+                          src={updatedFpath}
+                          alt='Uploaded preview'
+                          width={800}
+                          height={450}
+                          className='w-full h-full object-cover'
+                        />
+                      </div>
+                    </div>
+                    <div className='flex items-center justify-between bg-gray-800 p-4 rounded-b-lg'>
+                      <p>{post.caption}</p>
+                      <div className='relative inline-block'>
+                        <motion.div
+                          whileTap={{ scale: 0.8 }}
+                          onClick={() => handleLikeClick(post.token_id)}
+                          style={{ cursor: 'pointer' }}
+                          aria-pressed={post.liked}
+                          aria-label={post.liked ? 'Unlike' : 'Like'}
+                          className='flex items-center bg-gray-800 border border-gray-400 text-white rounded-full py-1 px-2 shadow-lg'
+                        >
+                          {post.liked ? (
+                            <FaStar
+                              size={16}
+                              className='mr-1'
+                              color='#fff4d1'
+                            />
+                          ) : (
+                            <FaRegStar
+                              size={16}
+                              className='mr-1'
+                              color='#fff4d1'
+                            />
+                          )}
+                          <span className='text-sm font-bold'>
+                            {post.liked_count}
+                          </span>
+                        </motion.div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
 
             {/* Drawer */}
             <Drawer isOpen={selectedPost !== null} onClose={closeDrawer}>
