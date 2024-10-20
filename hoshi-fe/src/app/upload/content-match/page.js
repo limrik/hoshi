@@ -480,7 +480,7 @@ export default function ContentMatchPage() {
                   </div>
                 )}
                 {uploadData.content && (
-                  <div className="w-1/2 p-4 flex bg-gray-800 rounded-r-lg relative">
+                  <div className="w-1/2 p-4 flex bg-gray-800 rounded-r-lg relative text-xs">
                     <p className="whitespace-pre-wrap">{uploadData.content}</p>
                     <div className="absolute translate-y-1/4 bottom-0 right-2 flex items-center bg-gray-700 rounded-full py-1 px-2 shadow-md">
                       <div className="w-6 h-6 rounded-full overflow-hidden bg-purple-600 flex items-center justify-center mr-2">
@@ -503,14 +503,16 @@ export default function ContentMatchPage() {
                 <h2 className="text-4xl font-bold text-green-400">
                   {similarityScore.toFixed(2)}%
                 </h2>
-                <p className="text-sm text-gray-400">similarity score</p>
+                <p className="text-sm text-gray-400">similar</p>
               </div>
 
               {/* original post */}
               <div className="flex flex-row gap-2">
                 {editedImage && (
                   <div className="w-1/2 relative overflow-hidden">
-                    <div className="text-md">Edited Content</div>
+                    <div className="text-sm text-center mb-1">
+                      Edited Content
+                    </div>
                     <div className="aspect-w-16 aspect-h-9">
                       {/* <Image
                         src={URL.createObjectURL(uploadData.file)}
@@ -542,7 +544,9 @@ export default function ContentMatchPage() {
                 )}
                 {parentImage && (
                   <div className="w-1/2 relative">
-                    <div className="text-md">Parent Content</div>
+                    <div className="text-sm text-center mb-1">
+                      Parent Content
+                    </div>
                     <div className="aspect-w-16 aspect-h-9 ">
                       {/* <Image
                         src={URL.createObjectURL(uploadData.file)}
