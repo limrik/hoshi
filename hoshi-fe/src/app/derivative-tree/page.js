@@ -11,8 +11,15 @@ import { Stars } from '../components/derivative-tree-components/Stars';
 import { Graph } from '../components/derivative-tree-components/Graph';
 import hakiIcon from '../media/user-icon/haki.png';
 import { useRouter } from 'next/navigation';
-// import Posts from '../../../../db/posts.json';
-// import Users from '../../../../db/users.json';
+import gojo1 from '../../../public/db/media/gojo.png';
+import gojo2 from '../../../public/db/media/demo1.png';
+import gojo3 from '../../../public/db/media/demo2.png';
+import gojo4 from '../../../public/db/media/demo3.jpg';
+import limrik from '../../../public/db/user_icons/limrik.jpeg';
+import nrehiew from '../../../public/db/user_icons/nrehiew.jpeg';
+import gregtanym from '../../../public/db/user_icons/gregtanym.jpeg';
+import { create } from 'canvas-confetti';
+
 // import {
 //   HOSHINFT_ABI,
 //   HOSHINFT_CONTRACT_ADDRESS,
@@ -96,72 +103,79 @@ export default function DerivativeTree() {
   //   }
   // };
 
-  const data = createNode(
-    'root',
-    0.5,
-    'This is the first post but I think it is a good one. Somehow or rather ',
-    'John Doe',
-    hakiIcon,
-    hakiIcon,
-    [
-      createNode(
-        'child1',
-        0.4,
-        'Interesting point...',
-        'Jane Smith',
-        hakiIcon,
-        hakiIcon,
-        [
-          createNode(
-            'grandchild1',
-            0.3,
-            'I agree with...',
-            'Bob Johnson',
-            hakiIcon,
-            [
-              createNode(
-                'greatgrandchild1',
-                0.2,
-                "Let's dive deeper...",
-                'Alice Brown',
-                hakiIcon
-              ),
-            ]
-          ),
-          createNode(
-            'grandchild2',
-            0.3,
-            'Another perspective...',
-            'Emma Wilson',
-            hakiIcon
-          ),
-        ]
-      ),
-      createNode(
-        'child2',
-        0.4,
-        'I have a different view...',
-        'Michael Lee',
-        hakiIcon,
-        [
-          createNode(
-            'grandchild3',
-            0.3,
-            'I see what you mean...',
-            'Sarah Davis',
-            hakiIcon
-          ),
-        ]
-      ),
-      createNode(
-        'child3',
-        0.4,
-        "Here's another angle...",
-        'David Miller',
-        hakiIcon
-      ),
-    ]
-  );
+  const data = createNode('gojo1', 0.5, 'gojo 1', 'vitalik', limrik, gojo1, [
+    createNode('gojo2', 0.4, 'gojo 2', 'nrehiew', nrehiew, gojo2, []),
+    createNode('gojo3', 0.4, 'gojo 3', 'gregtanym', gregtanym, gojo3, [
+      createNode('gojo4', 0.3, 'gojo 4', 'limrik', limrik, gojo4),
+    ]),
+  ]);
+
+  // const data = createNode(
+  //   'root',
+  //   0.5,
+  //   'This is the first post but I think it is a good one. Somehow or rather ',
+  //   'John Doe',
+  //   hakiIcon,
+  //   hakiIcon,
+  //   [
+  //     createNode(
+  //       'child1',
+  //       0.4,
+  //       'Interesting point...',
+  //       'Jane Smith',
+  //       hakiIcon,
+  //       hakiIcon,
+  //       [
+  //         createNode(
+  //           'grandchild1',
+  //           0.3,
+  //           'I agree with...',
+  //           'Bob Johnson',
+  //           hakiIcon,
+  //           [
+  //             createNode(
+  //               'greatgrandchild1',
+  //               0.2,
+  //               "Let's dive deeper...",
+  //               'Alice Brown',
+  //               hakiIcon
+  //             ),
+  //           ]
+  //         ),
+  //         createNode(
+  //           'grandchild2',
+  //           0.3,
+  //           'Another perspective...',
+  //           'Emma Wilson',
+  //           hakiIcon
+  //         ),
+  //       ]
+  //     ),
+  //     createNode(
+  //       'child2',
+  //       0.4,
+  //       'I have a different view...',
+  //       'Michael Lee',
+  //       hakiIcon,
+  //       [
+  //         createNode(
+  //           'grandchild3',
+  //           0.3,
+  //           'I see what you mean...',
+  //           'Sarah Davis',
+  //           hakiIcon
+  //         ),
+  //       ]
+  //     ),
+  //     createNode(
+  //       'child3',
+  //       0.4,
+  //       "Here's another angle...",
+  //       'David Miller',
+  //       hakiIcon
+  //     ),
+  //   ]
+  // );
 
   const handleZoomOut = () => {
     if (resetCamera.current) {

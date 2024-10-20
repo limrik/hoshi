@@ -42,13 +42,13 @@ export const Node = ({ node, position, setSelectedNode, selectedNode }) => {
         <div className='bg-white bg-opacity-80 p-2 rounded-lg shadow-md text-black text-xs w-32'>
           <div className='flex items-center'>
             <Image
-              src={node.authorIcon}
-              alt={node.authorName}
+              src={node.userIcon}
+              alt={node.userName}
               width={24}
               height={24}
               className='mr-2 rounded-full'
             />
-            <span className='font-semibold'>{node.authorName}</span>
+            <span className='font-semibold'>@{node.userName}</span>
           </div>
         </div>
       </Html>
