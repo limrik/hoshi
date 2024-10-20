@@ -15,7 +15,7 @@ import {
   HOSHITOKEN_ABI,
   HOSHITOKEN_CONTRACT_ADDRESS,
 } from '../../contracts/hoshitoken/hoshitoken';
-import { sepolia } from 'viem/chains';
+import { flowTestnet } from 'viem/chains';
 import hoshitoken from './media/logo/token-icon.png';
 import { formatUnits } from 'viem';
 
@@ -75,7 +75,7 @@ export default function Home() {
           abi: HOSHITOKEN_ABI,
           functionName: 'balanceOf',
           args: [address],
-          chain: sepolia,
+          chain: flowTestnet,
         });
         console.log(hoshitokens);
         setTokens(formatUnits(hoshitokens, 18));
@@ -99,7 +99,7 @@ export default function Home() {
           abi: HOSHITOKEN_ABI,
           functionName: 'likePost',
           args: [id, 100 * 10 ** 18],
-          chain: sepolia,
+          chain: flowTestnet,
         });
         console.log('Subscription transaction sent:', tx);
 

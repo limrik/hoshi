@@ -17,7 +17,7 @@ import {
   HOSHINFT_CONTRACT_ADDRESS,
 } from "../../../../contracts/hoshiNFT/hoshiNFT";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { sepolia } from "viem/chains";
+import { flowTestnet } from "viem/chains";
 import { readContract, writeContract } from "viem/actions";
 import Posts from "../../../../public/db/posts.json";
 import Users from "../../../../public/db/users.json";
@@ -210,7 +210,7 @@ export default function ContentMatchPage() {
         abi: HOSHINFT_ABI,
         functionName: "getParents",
         args: [parentTokenID],
-        chain: sepolia,
+        chain: flowTestnet,
       });
       console.log("parents: ", parents);
       return parents;
@@ -226,7 +226,7 @@ export default function ContentMatchPage() {
         abi: HOSHINFT_ABI,
         functionName: "getSimilarityScores",
         args: [parentTokenID],
-        chain: sepolia,
+        chain: flowTestnet,
       });
       console.log("similarity scores: ", similarityScores);
       return similarityScores;
@@ -249,7 +249,7 @@ export default function ContentMatchPage() {
         abi: HOSHINFT_ABI,
         functionName: "mintNFT",
         args: [address, parentTokenIds, similarityScoresInput, IPFSTokenURI],
-        chain: sepolia,
+        chain: flowTestnet,
       });
       console.log("Subscription transaction sent:", tx);
 
@@ -257,7 +257,7 @@ export default function ContentMatchPage() {
         address: HOSHINFT_CONTRACT_ADDRESS,
         abi: HOSHINFT_ABI,
         functionName: "nextTokenId",
-        chain: sepolia,
+        chain: flowTestnet,
       });
       console.log("Token ID:", tokenId);
 
