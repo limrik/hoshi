@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import json
 import io
+import tempfile
+import random
+import os
 import base64
 from image_db import ImageDB
 from text_db import TextDB
@@ -37,7 +40,7 @@ def encode_video(video_path):
         return base64.b64encode(video_file.read()).decode("utf-8")
 
 
-SCORE_MIN = 0.2
+SCORE_MIN = 0.3
 WEIGHT_COEFFICIENT = 2
 
 
@@ -49,7 +52,7 @@ async def search(text: str = Form(...), file: UploadFile = File(...), component:
     file_type = "Video" if file.content_type.startswith("video") else "Image"
 
     content = await file.read()
-    print("Start")
+    print("Start", file_type, file.content_type)
     if file_type == "Image":
         image_query = Image.open(io.BytesIO(content))
         results = image_db.search_image(image_query)
@@ -59,7 +62,26 @@ async def search(text: str = Form(...), file: UploadFile = File(...), component:
         edited_media = encode_image(results["edited_image"])
 
     elif file_type == "Video":
-        raise NotImplementedError("Video search not implemented")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video:
+            temp_video.write(content)
+            temp_video_path = temp_video.name
+
+        try:
+            # Use a temporary file for the output video
+            with tempfile.NamedTemporaryFile(delete=False, suffix="_output.mp4") as temp_output:
+                temp_output_path = temp_output.name
+
+            results = image_db.search_video(video_path=temp_video_path, fps_to_use=4, output_path=temp_output_path)
+            media_score = results["score"]
+            media_src = results["image_src"]
+            media_token_id = int(results["token_id"])
+            edited_media = encode_video(results["output_video_path"])
+
+        finally:
+            # Clean up temporary files
+            os.unlink(temp_video_path)
+            if os.path.exists(temp_output_path):
+                os.unlink(temp_output_path)
     else:
         raise ValueError(f"Unknown file type: {file_type}")
     print("Text now")
@@ -119,6 +141,8 @@ async def upload(text: str = Form(...), file: UploadFile = File(...), token_id: 
             "user_handle": user_id,
             "fpath": f"../db/media/{file.filename}",
             "caption": text,
+            "liked": False,
+            "liked_count": random.randint(0, 100),
         }
     )
     # save the text
