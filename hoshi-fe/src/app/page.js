@@ -17,6 +17,7 @@ import {
   HOSHITOKEN_CONTRACT_ADDRESS,
 } from '../../contracts/hoshitoken/hoshitoken';
 import { sepolia } from 'viem/chains';
+import hoshitoken from './media/logo/token-icon.png';
 import {
   HOSHINFT_ABI,
   HOSHINFT_CONTRACT_ADDRESS,
@@ -172,12 +173,13 @@ export default function Home() {
               unoptimized
             />
             <div className='absolute right-4 flex flex-row gap-1'>
-              <button className='border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'>
-                <Flame size={20} color='#fff4d1' />
-              </button>
-              <button className='border border-gray-700 rounded-lg p-2 hover:bg-gray-700 hover:border-gray-600'>
-                <MessageCircle size={20} color='#fff4d1' />
-              </button>
+              <div className='text-[#fff4d1]'>100000</div>
+              <Image
+                src={hoshitoken}
+                alt='Hoshi token'
+                width={20}
+                height={20}
+              />
             </div>
           </header>
           <main className='mt-16 flex-1 overflow-y-auto z-20'>
