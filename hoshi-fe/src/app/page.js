@@ -26,7 +26,6 @@ export default function Home() {
   const { user } = useDynamicContext();
 
   const openingVideo = '../media/opening-vid-hoshi.mp4';
-  const animeVideo = '../media/anime_video.mp4';
   const { isFirstVisit, setIsFirstVisit } = useVideo();
   const videoRef = useRef(null);
 
@@ -254,10 +253,6 @@ export default function Home() {
                           </span>
                         </motion.div>
                       </div>
-                      <video controls width='100%' height='auto'>
-                        <source src={animeVideo} type='video/mp4' />
-                        Your browser does not support the video tag.
-                      </video>
                     </div>
                   </div>
                 );
