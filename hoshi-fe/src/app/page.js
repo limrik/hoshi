@@ -109,7 +109,7 @@ export default function Home() {
           abi: HOSHITOKEN_ABI,
           functionName: 'likePost',
           args: [id, 100 * 10 ** 18],
-          chain: sepolia,
+          chain: skaleCalypsoTestnet,
         });
         console.log('Subscription transaction sent:', tx);
 
