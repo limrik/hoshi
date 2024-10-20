@@ -25,6 +25,21 @@ export default function DynamicProviderWrapper({ children }) {
       networkId: 974399131,
       rpcUrls: ['https://testnet.skalenodes.com/v1/giant-half-dual-testnet'],
     },
+    {
+      blockExplorerUrls: ['https://testnet.storyscan.xyz'],
+      chainId: 1513,
+      chainName: 'SKALE Calypso Hub Testnet',
+      iconUrls: ['https://app.dynamic.xyz/assets/networks/eth.svg'],
+      name: 'Story Testnet',
+      nativeCurrency: {
+        decimals: 18,
+        name: 'IP',
+        symbol: 'IP',
+        iconUrl: 'https://app.dynamic.xyz/assets/networks/eth.svg',
+      },
+      networkId: 1513,
+      rpcUrls: ['https://testnet.storyrpc.io'],
+    },
   ];
 
   return (
